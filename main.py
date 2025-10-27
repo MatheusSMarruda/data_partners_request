@@ -17,8 +17,8 @@ def main():
         print("Nenhum negócio encontrado.")
         return
 
-    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\child_files', exist_ok=True)
-    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\mother_files', exist_ok=True)
+    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files', exist_ok=True)
+    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files', exist_ok=True)
 
     # --- PDFs por Finder (child_files) ---
     for finder_name, totals in deals_by_finder.items():
@@ -32,7 +32,7 @@ def main():
             deals_prospeccao[finder_name],
             deals_fechados.get(finder_name, []),
             assinatura_fechados_val,
-            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\child_files'
+            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files'
         )
 
     # --- Agregação por Categoria (mother_files) ---
@@ -66,7 +66,7 @@ def main():
             categoria_prospeccao[categoria],
             categoria_fechados[categoria],
             assinatura_fechados_val,
-            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\mother_files'
+            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files'
         )
 
 if __name__ == "__main__":

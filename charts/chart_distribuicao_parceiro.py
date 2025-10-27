@@ -9,11 +9,7 @@ COLOR_NAO_COMP = "#1B2124"     # grafite
 COLOR_25 = "#0074FF"           # azul Tempo Energia
 COLOR_TEXTO = "#1B2124"        # cinza escuro para texto
 
-<<<<<<< HEAD
 def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0):
-=======
-def gerar_distribuicao_parceiro(finder_name, assinatura):
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
     """
     Gera gráfico de distribuição mensal de assinaturas por tipo de Finder.
     Mostra apenas um mês sim e um mês não no eixo X para evitar poluição visual.
@@ -24,7 +20,6 @@ def gerar_distribuicao_parceiro(finder_name, assinatura):
         "Jan/2027", "Fev/2027", "Mar/2027", "Abr/2027", "Mai/2027", "Jun/2027",
         "Jul/2027", "Ago/2027", "Set/2027", "Out/2027", "Nov/2027", "Dez/2027"
     ]
-<<<<<<< HEAD
 
     valores = np.zeros(len(meses))
     base_vals = np.zeros(len(meses))
@@ -69,48 +64,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura):
     bars = ax.bar(x + width / 2, valores, width, label="Em Prospecção", color=COLOR_25)
 
     ax.set_title(f"Previsão de Comissão por Finder ({finder_name})", fontsize=12, color=COLOR_FATURA, fontweight="bold")
-=======
-    valores = np.zeros(len(meses))
 
-    finder_lower = finder_name.lower()
-
-    if "gold" in finder_lower:
-        # Gold → 100% em Mar/26 e Mar/27
-        for i, mes in enumerate(meses):
-            if mes in ["Mar/2026", "Mar/2027"]:
-                valores[i] = assinatura
-
-    elif "plus" in finder_lower:
-        # Plus → 85% em Mar/26 e Mar/27
-        for i, mes in enumerate(meses):
-            if mes in ["Mar/2026", "Mar/2027"]:
-                valores[i] = assinatura * 0.85
-
-    elif "indique" in finder_lower:
-        # Indique → 50% em Mar/26 e Mar/27
-        for i, mes in enumerate(meses):
-            if mes in ["Mar/2026", "Mar/2027"]:
-                valores[i] = assinatura * 0.5
-
-    elif "parceiro exsat" in finder_lower or "exsat" in finder_lower:
-        # Exsat → 50% em Mar/26 e Mar/27 + 1% entre Abr/26 e Fev/27 (inclui Mar/26 com 51%)
-        for i, mes in enumerate(meses):
-            if mes in ["Mar/2026", "Mar/2027"]:
-                valores[i] = assinatura * 0.51  # 50% + 1%
-            elif mes in [
-                "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026", "Ago/2026",
-                "Set/2026", "Out/2026", "Nov/2026", "Dez/2026",
-                "Jan/2027", "Fev/2027", "Mar/2027","Abr/2027", "Mai/2027", "Jun/2027",
-                "Jul/2027", "Ago/2027", "Set/2027", "Out/2027", "Nov/2027", "Dez/2027"
-            ]:
-                valores[i] = assinatura * 0.01
-
-    # === Gráfico ===
-    fig, ax = plt.subplots(figsize=(9, 3.8))
-    bars = ax.bar(meses, valores, color=COLOR_25, width=0.6)
-
-    ax.set_title(f"Previsão de Comissão para Plano 25% ({finder_name})", fontsize=12, color=COLOR_FATURA, fontweight="bold")
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
     ax.set_ylabel("Valor das Comissões (R$)", color=COLOR_TEXTO)
     ax.set_facecolor("#FFFFFF")
 
@@ -121,7 +75,6 @@ def gerar_distribuicao_parceiro(finder_name, assinatura):
     ax.tick_params(axis='y', colors=COLOR_TEXTO)
 
     # Exibir apenas meses alternados no eixo X (1 sim, 1 não)
-<<<<<<< HEAD
     xtick_labels = [mes if i % 2 == 0 else "" for i, mes in enumerate(meses)]
     ax.set_xticks(x)
     ax.set_xticklabels(xtick_labels)
@@ -145,42 +98,6 @@ def gerar_distribuicao_parceiro(finder_name, assinatura):
 
     # Legenda e descrição compacta
     ax.legend(loc="upper right", fontsize=9)
-    #desc = (
-    #    "Legenda: 'Assinatura Fechados' = valor agregado do Pipeline 37 por finder; "
-    #    "'Prospecção / Simulação' = projeção em prospecção. Valores em R$."
-    #)
-    #ax.text(0.01, 0.95, desc, transform=ax.transAxes, fontsize=8, va="top", ha="left", color=COLOR_TEXTO)
-=======
-    xticks = np.arange(len(meses))
-    xtick_labels = [mes if i % 2 == 0 else "" for i, mes in enumerate(meses)]
-    ax.set_xticks(xticks)
-    ax.set_xticklabels(xtick_labels)
-
-    # === Rótulos automáticos com ajuste dinâmico ===
-    max_val = max(valores) if any(valores) else 0
-    for bar, val in zip(bars, valores):
-        if val > 0:
-            if val >= 0.3 * max_val:
-                # Valor alto → dentro da barra
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    bar.get_y() + bar.get_height() / 2,
-                    f"R$ {val:,.2f}",
-                    ha="center", va="center",
-                    fontsize=8, rotation=90,
-                    color="white", fontweight="bold"
-                )
-            else:
-                # Valor baixo → acima da barra
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    bar.get_y() + bar.get_height() * 1.05,
-                    f"R$ {val:,.2f}",
-                    ha="center", va="bottom",
-                    fontsize=8, rotation=90,
-                    color=COLOR_TEXTO, fontweight="bold"
-                )
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
 
     plt.tight_layout()
     distrib_chart_path = os.path.join("chart_distribuicao_parceiro.png")

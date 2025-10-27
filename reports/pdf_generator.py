@@ -46,20 +46,13 @@ def generate_pdf(
     vinte_cinco_porcento,
     deals_prospeccao,
     deals_fechados,
-<<<<<<< HEAD
     assinatura_fechados,
-=======
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
     pasta_saida
 ):
     # === DADOS BÁSICOS ===
     sanitized_name = finder_name.replace(" ", "_").replace("/", "_")
     pdf_path = os.path.join(pasta_saida, f"{sanitized_name}.pdf")
-<<<<<<< HEAD
     distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados)
-=======
-    distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura)
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
 
     # === PALHETA DE CORES ===
     COLOR_FATURA = "#002644"
@@ -147,7 +140,7 @@ def generate_pdf(
     truncate_style = ParagraphStyle(name="Truncate", fontSize=8, leading=10, wordWrap="CJK")
 
     # === CABEÇALHO COM FAIXA E LOGO ===
-    logo_path = r"C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\tempo-geracao-logo.png"
+    logo_path = r"C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\tempo-geracao-logo.png"
     titulo_style = ParagraphStyle(name="TituloCabecalho", fontSize=14,
                                  textColor=colors.white, leftIndent=10, alignment=0, leading=16)
     titulo = Paragraph("<b>Análise de Prospecção e Fechamentos</b>", titulo_style)
@@ -198,11 +191,7 @@ def generate_pdf(
         story.append(Paragraph("Em Prospecção:", styles["Heading2"]))
         if is_mother:
             col_labels = ["Nome", "Data de Entrada", "Subcontratado", "Valor da Fatura (R$)"]
-<<<<<<< HEAD
             col_widths = [150, 100, 150, 120]
-=======
-            col_widths = [150, 100, 150, 90]
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
         else:
             col_labels = ["Nome", "Data de Entrada", "Valor da Fatura (R$)"]
             col_widths = [200, 160, 120]
@@ -242,17 +231,10 @@ def generate_pdf(
         story.append(Paragraph("Fechados:", styles["Heading2"]))
         if is_mother:
             col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Valor da Fatura (R$)"]
-<<<<<<< HEAD
             col_widths = [130, 90, 130, 110, 140]
         else:
             col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Valor da Fatura (R$)"]
             col_widths = [200, 120, 100, 140]
-=======
-            col_widths = [130, 90, 130, 110, 100]
-        else:
-            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Valor da Fatura (R$)"]
-            col_widths = [200, 120, 100, 60]
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
 
         cell_text = []
         for d in deals_fechados:

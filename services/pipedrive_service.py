@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 from .finder_utils import obter_mapeamentos_campos, process_finder_field
-<<<<<<< HEAD
 from config import PIPELINE_FECHADOS
 
 
@@ -28,8 +27,6 @@ def _parse_plano_label_to_decimal(label):
     except Exception:
         pass
     return 0.25
-=======
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
 
 
 def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_keys, calcular_totais=True):
@@ -103,12 +100,8 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                             "fatura_cheia": 0.0,
                             "assinatura": 0.0,
                             "nao_compensavel": 0.0,
-<<<<<<< HEAD
                             "vinte_cinco_porcento": 0.0,
                             "assinatura_fechados": 0.0
-=======
-                            "vinte_cinco_porcento": 0.0
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
                         }
 
                     nome = deal.get("title", "Sem Nome")
@@ -179,7 +172,6 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                         if kwh_contratado is not None and str(kwh_contratado).strip():
                             kwh_contratado = float(kwh_contratado)
                             total_contratado = kwh_contratado * 1.1150643
-<<<<<<< HEAD
                             # Se for pipeline de fechados, usar o Plano Assinado para calcular o percentual
                             if pipeline_id == PIPELINE_FECHADOS:
                                 plano_decimal = _parse_plano_label_to_decimal(plano_assinado_label)
@@ -192,12 +184,6 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                                 vinte_cinco_valor = total_contratado - assinatura_valor
                                 deals_by_finder[processed_finder]["assinatura"] += assinatura_valor
                                 deals_by_finder[processed_finder]["vinte_cinco_porcento"] += vinte_cinco_valor
-=======
-                            assinatura_valor = total_contratado * (1 - 0.25)
-                            vinte_cinco_valor = total_contratado - assinatura_valor
-                            deals_by_finder[processed_finder]["assinatura"] += assinatura_valor
-                            deals_by_finder[processed_finder]["vinte_cinco_porcento"] += vinte_cinco_valor
->>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
 
                         kwh_nao_comp = deal.get(custom_field_keys["kwh_nao_compensavel"])
                         if kwh_nao_comp is None:
