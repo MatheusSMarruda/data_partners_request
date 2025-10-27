@@ -9,8 +9,13 @@ def main():
     deals_by_finder, deals_prospeccao = analyze_deals_in_pipeline(
         API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, CUSTOM_FIELD_KEYS, calcular_totais=True
     )
+<<<<<<< HEAD
     deals_by_finder_fechados, deals_fechados = analyze_deals_in_pipeline(
         API_TOKEN, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS, calcular_totais=True
+=======
+    _, deals_fechados = analyze_deals_in_pipeline(
+        API_TOKEN, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS, calcular_totais=False
+>>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
     )
 
     if not deals_by_finder:
@@ -22,7 +27,10 @@ def main():
 
     # --- PDFs por Finder (child_files) ---
     for finder_name, totals in deals_by_finder.items():
+<<<<<<< HEAD
         assinatura_fechados_val = deals_by_finder_fechados.get(finder_name, {}).get("assinatura_fechados", 0.0)
+=======
+>>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
         generate_pdf(
             finder_name,
             totals["fatura_cheia"],
@@ -31,7 +39,10 @@ def main():
             totals["vinte_cinco_porcento"],
             deals_prospeccao[finder_name],
             deals_fechados.get(finder_name, []),
+<<<<<<< HEAD
             assinatura_fechados_val,
+=======
+>>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
             pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\child_files'
         )
 
@@ -56,7 +67,10 @@ def main():
         categoria_fechados[categoria].extend(deals_fechados.get(finder_name, []))
 
     for categoria, totals in categoria_totais.items():
+<<<<<<< HEAD
         assinatura_fechados_val = deals_by_finder_fechados.get(categoria, {}).get("assinatura_fechados", 0.0)
+=======
+>>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
         generate_pdf(
             categoria,
             totals["fatura_cheia"],
@@ -65,7 +79,10 @@ def main():
             totals["vinte_cinco_porcento"],
             categoria_prospeccao[categoria],
             categoria_fechados[categoria],
+<<<<<<< HEAD
             assinatura_fechados_val,
+=======
+>>>>>>> 2829e9b466230a49b62df84c541d494c01986cd9
             pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\partners_request_pipedrive\mother_files'
         )
 
