@@ -49,11 +49,16 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         for i, mes in enumerate(meses):
             if mes in ["Mar/2026", "Mar/2027"]:
                 valores[i] = assinatura * 0.51
+                base_vals[i] = assinatura_fechados * 0.51
+            elif mes in ["Abr/2026", "Mai/2026", "Jun/2026",
+                "Jul/2026", "Ago/2026", "Set/2026", "Out/2026", "Nov/2026", "Dez/2026",
+                "Jan/2027", "Fev/2027", "Abr/2027", "Mai/2027", "Jun/2027",
+                "Jul/2027", "Ago/2027", "Set/2027", "Out/2027", "Nov/2027", "Dez/2027"]:
+                valores[i] = assinatura * 0.01
+                base_vals[i] = assinatura_fechados * 0.01
             else:
                 valores[i] = 0
-            # decaimento multiplicativo de 1% ao mês para a base
-            decay = (1 - 0.01) ** i
-            base_vals[i] = assinatura_fechados * 0.5 * decay
+                base_vals[i] = 0
 
     # === Gráfico (colunas clusterizadas por mês) ===
     fig, ax = plt.subplots(figsize=(11, 4))
