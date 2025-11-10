@@ -52,7 +52,14 @@ def generate_pdf(
     # === DADOS BÁSICOS ===
     sanitized_name = finder_name.replace(" ", "_").replace("/", "_")
     pdf_path = os.path.join(pasta_saida, f"{sanitized_name}.pdf")
-    distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados)
+    # Garante que, para finders como 'indique', usemos o total de 'assinatura'
+    # proveniente de `deals_fechados` caso o agregado `assinatura` seja zero.
+    try:
+        assinatura_display = float(assinatura) if assinatura and float(assinatura) > 0 else sum(float(d.get('assinatura', 0) or 0) for d in (deals_fechados or []))
+    except Exception:
+        assinatura_display = assinatura
+
+    distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura_display, assinatura_fechados, deals_fechados)
 
     # === PALHETA DE CORES ===
     COLOR_FATURA = "#002644"
@@ -78,7 +85,7 @@ def generate_pdf(
 
     # === ESTRUTURA DAS BARRAS ===
     bar_fatura = ax.bar(x_pos[0], valor_medio_por_consumo, color=COLOR_FATURA, width=largura)
-    bar_assin = ax.bar(x_pos[2], assinatura, bottom=nao_compensavel, color=COLOR_ASSINATURA, width=largura)
+    bar_assin = ax.bar(x_pos[2], assinatura_display, bottom=nao_compensavel, color=COLOR_ASSINATURA, width=largura)
     bar_nao_comp = ax.bar(x_pos[3], nao_compensavel, color=COLOR_NAO_COMP, alpha=0.3, width=largura)
     bar_25 = ax.bar(x_pos[1], vinte_cinco_porcento,
                     bottom=assinatura + nao_compensavel,

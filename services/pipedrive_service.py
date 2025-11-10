@@ -179,11 +179,23 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                                 # acumula em campo específico para fechados
                                 deals_by_finder[processed_finder].setdefault("assinatura_fechados", 0.0)
                                 deals_by_finder[processed_finder]["assinatura_fechados"] += assinatura_valor
+                                # Guarda valor de assinatura por negócio para uso em relatórios
+                                try:
+                                    if processed_finder in deals_details and deals_details[processed_finder]:
+                                        deals_details[processed_finder][-1]['assinatura'] = assinatura_valor
+                                except Exception:
+                                    pass
                             else:
                                 assinatura_valor = total_contratado * (1 - 0.25)
                                 vinte_cinco_valor = total_contratado - assinatura_valor
                                 deals_by_finder[processed_finder]["assinatura"] += assinatura_valor
                                 deals_by_finder[processed_finder]["vinte_cinco_porcento"] += vinte_cinco_valor
+                                # Guarda valor de assinatura por negócio para uso em relatórios
+                                try:
+                                    if processed_finder in deals_details and deals_details[processed_finder]:
+                                        deals_details[processed_finder][-1]['assinatura'] = assinatura_valor
+                                except Exception:
+                                    pass
 
                         kwh_nao_comp = deal.get(custom_field_keys["kwh_nao_compensavel"])
                         if kwh_nao_comp is None:
