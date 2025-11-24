@@ -35,16 +35,37 @@ def obter_mapeamentos_campos(api_token):
     return mapeamentos
 
     #Fazemos a extração do finder se obtiver "Interno" em tipos de finder
-def process_finder_field(finder_value, finder_mapping):
-    """Processa o campo 'Finder (Origem da Fatura)' para desconsiderar valores com 'interno'."""
-    if not finder_value:
-        return None
+def process_finder_field(finder_value, finder_mapping, return_meta=False):
+    """
+    Processa o campo 'Finder (Origem da Fatura)'.
 
+    - Remove partes com 'interno' para formar o finder_clean.
+    - Detecta se havia 'interno' antes de remover (has_interno).
+
+    Se return_meta=True retorna:
+        (finder_clean, has_interno, finder_resolved_raw)
+    Caso contrário, retorna apenas finder_clean (como hoje).
+    """
+    if not finder_value:
+        return (None, False, None) if return_meta else None
+
+    # Resolve ids -> labels
     if isinstance(finder_value, list):
         resolved_parts = [finder_mapping.get(str(part), str(part)) for part in finder_value]
     else:
         parts = [part.strip() for part in str(finder_value).split(",")]
         resolved_parts = [finder_mapping.get(part, part) for part in parts]
 
-    filtered_parts = [part for part in resolved_parts if "interno" not in part.lower()]
-    return ", ".join(filtered_parts) if filtered_parts else None
+    # flag de interno olhando as partes resolvidas
+    has_interno = any("interno" in str(part).lower() for part in resolved_parts)
+
+    # remove internos do texto final
+    filtered_parts = [part for part in resolved_parts if "interno" not in str(part).lower()]
+    finder_clean = ", ".join(filtered_parts) if filtered_parts else None
+
+    if return_meta:
+        finder_resolved_raw = ", ".join(resolved_parts) if resolved_parts else None
+        return finder_clean, has_interno, finder_resolved_raw
+
+    return finder_clean
+

@@ -89,7 +89,11 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                         custom_fields = deal.get("custom_fields", {})
                         finder = custom_fields.get(custom_field_keys["finder"])
 
-                    processed_finder = process_finder_field(finder, finder_mapping)
+                    processed_finder, has_interno, finder_raw = process_finder_field(
+                        finder, 
+                        finder_mapping, 
+                        return_meta=True
+                    )
                     if not processed_finder:
                         continue
 
@@ -147,13 +151,17 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
 
                     # === REGISTRO FINAL ===
                     deals_details[processed_finder].append({
-                        "title": nome,
-                        "finder": finder_formatado,
-                        "value": valor,
-                        "data_entrada": data_entrada,
-                        "plano_assinado": plano_assinado_label,
-                        "data_assinatura": data_assinatura_formatada,
-                    })
+                    "title": nome,
+                    "finder": finder_formatado,
+                    "value": valor,
+                    "data_entrada": data_entrada,
+                    "plano_assinado": plano_assinado_label,
+                    "data_assinatura": data_assinatura_formatada,
+
+                    # >>> TÓPICO 2 AQUI <<<
+                    "finder_raw": finder_raw,      # texto completo resolvido (com Interno)
+                    "has_interno": has_interno,    # True/False por deal
+                })
 
                     # === CÁLCULOS DE TOTAIS ===
                     if calcular_totais:
