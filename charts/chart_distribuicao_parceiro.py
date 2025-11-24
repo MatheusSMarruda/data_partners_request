@@ -34,10 +34,58 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
                 base_vals[i] = assinatura_fechados * 1.0
 
     elif "plus" in finder_lower:
-        for i, mes in enumerate(meses):
-            if mes in ["Mar/2026", "Mar/2027"]:
-                valores[i] = assinatura * 0.85
-                base_vals[i] = assinatura_fechados * 0.85
+        # Para 'plus' aplicamos lógica similar ao 'indique' mas com outros
+        # percentuais por plano. Se `deals_fechados` for fornecido usamos o
+        # valor de assinatura por-deal já calculado e aplicamos:
+        # - Plano 15% -> 25% do deal_assinatura em Mar/2026
+        # - Plano 20% -> 85% do deal_assinatura em Mar/2026
+        # - Plano 25% -> 85% do deal_assinatura em Mar/2026 e 85% em Mar/2027
+        if deals_fechados:
+            try:
+                idx_mar_2026 = meses.index("Mar/2026")
+                idx_mar_2027 = meses.index("Mar/2027")
+            except ValueError:
+                idx_mar_2026 = idx_mar_2027 = None
+
+            # assinatura_total para exibição (barra 'Assinatura'):
+            assinatura_total = assinatura if assinatura and float(assinatura) > 0 else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
+
+            # preenchimento dos valores (prospecção) similar à versão antiga,
+            # usando o fator 0.85
+            if idx_mar_2026 is not None:
+                valores[idx_mar_2026] = assinatura_total * 0.85
+            if idx_mar_2027 is not None:
+                valores[idx_mar_2027] = assinatura_total * 0.85
+
+            import re
+            for deal in deals_fechados:
+                if not isinstance(deal, dict):
+                    continue
+                deal_assinatura = float(deal.get('assinatura', 0) or 0)
+                plano_label = str(deal.get('plano_assinado', '')).lower()
+                m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
+                perc = float(m.group(1).replace(',', '.')) if m else None
+
+                if perc == 15.0:
+                    if idx_mar_2026 is not None:
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.25
+                elif perc == 20.0:
+                    if idx_mar_2026 is not None:
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.85
+                elif perc == 25.0:
+                    if idx_mar_2026 is not None:
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.85
+                    if idx_mar_2027 is not None:
+                        base_vals[idx_mar_2027] += deal_assinatura * 0.85
+                else:
+                    # fallback: aplicar 85% em Mar/2026
+                    if idx_mar_2026 is not None:
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.85
+        else:
+            for i, mes in enumerate(meses):
+                if mes in ["Mar/2026", "Mar/2027"]:
+                    valores[i] = assinatura * 0.85
+                    base_vals[i] = assinatura_fechados * 0.85
 
     elif "indique" in finder_lower:
         # Para o parceiro 'indique' a lógica de 'assinatura_fechados' pode variar

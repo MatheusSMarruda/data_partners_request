@@ -82,7 +82,7 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                     status = deal.get("status") or deal.get(custom_field_keys.get("status"))
                     if status and str(status).strip().lower() == "lost":
                         continue
-
+                        
                     # === FIELDS ===
                     finder = deal.get(custom_field_keys["finder"])
                     if finder is None:
