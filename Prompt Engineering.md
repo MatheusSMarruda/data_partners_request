@@ -48,11 +48,11 @@ Lembrando que esse parametro deve ser implementado apenas para Finders Indique e
 
 Agora preciso ajustar o parceiro Plus. Vamos levar com consideração as mesmas variáveis que usamos para estruturar a lógica o Indique, mas os parametros referente aos planos vai ser o seguinte:
 
-Plano 15% = 25% do valor da assinatura em Mar/2026
+Plano 15% = 25% do valor da assinatura em Abr/2026
 
-Plano 85% = 85% do valor da assinatura em Mar/2026
+Plano 85% = 85% do valor da assinatura em Abr/2026
 
-Plano 25% = 85% do valor da assinatura em Mar/2026 e Mar/2027
+Plano 25% = 85% do valor da assinatura em Abr/2026 e Abr/2027
 
 
 
