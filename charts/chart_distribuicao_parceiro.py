@@ -36,8 +36,8 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
     # índices dos meses-chave
     try:
-        idx_mar_2026 = meses.index("Mar/2026")
-        idx_mar_2027 = meses.index("Mar/2027")
+        idx_mar_2026 = meses.index("Abr/2026")
+        idx_mar_2027 = meses.index("Abr/2027")
     except ValueError:
         idx_mar_2026 = idx_mar_2027 = None
 
@@ -131,7 +131,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
         else:
             for i, mes in enumerate(meses):
-                if mes in ["Mar/2026", "Mar/2027"]:
+                if mes in ["Abr/2026", "Abr/2027"]:
                     valores[i] = assinatura
                     base_vals[i] = assinatura_fechados * 1.0
 
@@ -183,7 +183,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
         else:
             for i, mes in enumerate(meses):
-                if mes in ["Mar/2026", "Mar/2027"]:
+                if mes in ["Abr/2026", "Abr/2027"]:
                     valores[i] = assinatura * 0.85
                     base_vals[i] = assinatura_fechados * 0.85
 
@@ -235,7 +235,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
         else:
             for i, mes in enumerate(meses):
-                if mes in ["Mar/2026", "Mar/2027"]:
+                if mes in ["Abr/2026", "Abr/2027"]:
                     valores[i] = assinatura * 0.5
                     base_vals[i] = assinatura_fechados * 0.5
 
@@ -321,7 +321,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
             # recorrência 2% nos demais meses
             for i, mes in enumerate(meses):
-                if mes not in ["Mar/2026", "Mar/2027"]:
+                if mes not in ["Abr/2026", "Abr/2027"]:
                     valores[i] = assinatura_total * 0.02
                     base_vals[i] = base_vals[i] + (assinatura_fechados * 0.02)
 
@@ -347,10 +347,10 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
         else:
             for i, mes in enumerate(meses):
-                if mes == "Mar/2026":
+                if mes == "Abr/2026":
                     valores[i] = assinatura * 1.02
                     base_vals[i] = assinatura_fechados * 1.02
-                elif mes == "Mar/2027":
+                elif mes == "Abr/2027":
                     valores[i] = assinatura * 1.02
                     base_vals[i] = assinatura_fechados * 1.02
                 else:

@@ -4,7 +4,6 @@ from config import API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, PIPELINE_F
 from collections import defaultdict
 import os
 
-
 def main():
     deals_by_finder, deals_prospeccao = analyze_deals_in_pipeline(
         API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, CUSTOM_FIELD_KEYS, calcular_totais=True
