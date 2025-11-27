@@ -88,28 +88,6 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
                 m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
                 perc = float(m.group(1).replace(',', '.')) if m else None
 
-                # --- REGRA ESPECIAL: Interno (somente Gold) ---
-                if _deal_has_interno(deal):
-                    if perc == 15.0:
-                        if idx_mar_2026 is not None:
-                            base_vals[idx_mar_2026] += deal_assinatura * 0.15
-
-                    elif perc in (85.0, 20.0):
-                        if idx_mar_2026 is not None:
-                            base_vals[idx_mar_2026] += deal_assinatura * 0.85
-
-                    elif perc == 25.0:
-                        if idx_mar_2026 is not None:
-                            base_vals[idx_mar_2026] += deal_assinatura * 0.85
-                        if idx_mar_2027 is not None:
-                            base_vals[idx_mar_2027] += deal_assinatura * 0.85
-
-                    else:
-                        if idx_mar_2026 is not None:
-                            base_vals[idx_mar_2026] += deal_assinatura * 0.85
-
-                    continue  # não aplica regra normal do gold
-
                 # --- regra normal Gold ---
                 if perc == 15.0:
                     if idx_mar_2026 is not None:
@@ -244,8 +222,8 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     # =========================
     if "parceiro exsat" in finder_lower:
         meses_1pct = [
-            "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026", "Ago/2026", "Set/2026", "Out/2026", "Nov/2026", "Dez/2026",
-            "Jan/2027", "Fev/2027", "Mai/2027", "Jun/2027", "Jul/2027", "Ago/2027", "Set/2027", "Out/2027", "Nov/2027", "Dez/2027"
+            "Mai/2026", "Jun/2026", "Jul/2026", "Ago/2026", "Set/2026", "Out/2026", "Nov/2026", "Dez/2026",
+            "Jan/2027", "Fev/2027", "Mar/2027","Mai/2027", "Jun/2027", "Jul/2027", "Ago/2027", "Set/2027", "Out/2027", "Nov/2027", "Dez/2027"
         ]
 
         if deals_fechados:
@@ -254,7 +232,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
                 else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
             )
 
-            # Em prospecção mantemos visibilidade em Mar/2026/Mar/2027
+            # Em prospecção mantemos visibilidade em Abr/2026/Abr/2027
             if idx_mar_2026 is not None:
                 valores[idx_mar_2026] = assinatura_total * 0.51
             if idx_mar_2027 is not None:
@@ -277,23 +255,23 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
                 if perc == 15.0:
                     if idx_mar_2026 is not None:
-                        base_vals[idx_mar_2026] += deal_assinatura * 0.15
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.16
                 elif perc == 20.0:
                     if idx_mar_2026 is not None:
-                        base_vals[idx_mar_2026] += deal_assinatura * 0.50
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.51
                 elif perc == 25.0:
                     if idx_mar_2026 is not None:
-                        base_vals[idx_mar_2026] += deal_assinatura * 0.50
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.51
                     if idx_mar_2027 is not None:
-                        base_vals[idx_mar_2027] += deal_assinatura * 0.50
+                        base_vals[idx_mar_2027] += deal_assinatura * 0.51
                 else:
                     if idx_mar_2026 is not None:
-                        base_vals[idx_mar_2026] += deal_assinatura * 0.50
+                        base_vals[idx_mar_2026] += deal_assinatura * 0.51
 
         else:
             # fallback histórico
             for i, mes in enumerate(meses):
-                if mes in ["Mar/2026", "Mar/2027"]:
+                if mes in ["Abr/2026", "Abr/2027"]:
                     valores[i] = assinatura * 0.51
                     base_vals[i] = assinatura_fechados * 0.51
                 elif mes in meses_1pct:
@@ -319,11 +297,19 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
             if idx_mar_2027 is not None:
                 valores[idx_mar_2027] = assinatura_total * 1.02
 
-            # recorrência 2% nos demais meses
-            for i, mes in enumerate(meses):
-                if mes not in ["Abr/2026", "Abr/2027"]:
+            # recorrência 2% nos meses a partir do mês seguinte ao mês de aplicação
+            # (inicia em idx_mar_2026 + 1). Não pré-pendemos meses anteriores.
+            if idx_mar_2026 is not None:
+                start_idx = idx_mar_2026 + 1
+                for i in range(start_idx, len(meses)):
+                    # não aplicar no(s) meses de aplicação (caso coincidam)
+                    if i == idx_mar_2026 or i == idx_mar_2027:
+                        continue
                     valores[i] = assinatura_total * 0.02
                     base_vals[i] = base_vals[i] + (assinatura_fechados * 0.02)
+            else:
+                # fallback conservador: se não souber o índice, não aplicar recorrência
+                pass
 
             for deal in deals_fechados:
                 if not isinstance(deal, dict):
