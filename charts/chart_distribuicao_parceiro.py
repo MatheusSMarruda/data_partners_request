@@ -60,23 +60,20 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         # - Plano 15% -> 30% em Mar/2026
         # - Plano 20% -> 100% em Mar/2026
         # - Plano 25% -> 100% em Mar/2026 e 100% em Mar/2027
-        #
+
         # Regras ESPECIAIS se o deal tiver INTERN0 no Finder:
         # - Plano 15% -> 15% Mar/2026
         # - Plano 85% -> 85% Mar/2026
         # - Plano 25% -> 85% Mar/2026 e 85% Mar/2027
 
         if deals_fechados:
-            assinatura_total = (
-                assinatura if assinatura and float(assinatura) > 0
-                else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
-            )
-
-            # Prospecção (mantém comportamento antigo do Gold)
-            if idx_mar_2026 is not None:
-                valores[idx_mar_2026] = assinatura_total
-            if idx_mar_2027 is not None:
-                valores[idx_mar_2027] = assinatura_total
+            # Prospecção (mantém comportamento antigo do Gold) - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None:
+                    valores[idx_mar_2026] = assinatura_val
+                if idx_mar_2027 is not None:
+                    valores[idx_mar_2027] = assinatura_val
 
             for deal in deals_fechados:
                 if not isinstance(deal, dict):
@@ -124,15 +121,13 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         # (SEM tratamento especial de Interno)
 
         if deals_fechados:
-            assinatura_total = (
-                assinatura if assinatura and float(assinatura) > 0
-                else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
-            )
-
-            if idx_mar_2026 is not None:
-                valores[idx_mar_2026] = assinatura_total * 0.85
-            if idx_mar_2027 is not None:
-                valores[idx_mar_2027] = assinatura_total * 0.85
+            # Em Prospecção - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None:
+                    valores[idx_mar_2026] = assinatura_val * 0.85
+                if idx_mar_2027 is not None:
+                    valores[idx_mar_2027] = assinatura_val * 0.85
 
             for deal in deals_fechados:
                 if not isinstance(deal, dict):
@@ -176,15 +171,13 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         # (SEM tratamento especial de Interno)
 
         if deals_fechados:
-            assinatura_total = (
-                assinatura if assinatura and float(assinatura) > 0
-                else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
-            )
-
-            if idx_mar_2026 is not None:
-                valores[idx_mar_2026] = assinatura_total * 0.5
-            if idx_mar_2027 is not None:
-                valores[idx_mar_2027] = assinatura_total * 0.5
+            # Em Prospecção - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None:
+                    valores[idx_mar_2026] = assinatura_val * 0.5
+                if idx_mar_2027 is not None:
+                    valores[idx_mar_2027] = assinatura_val * 0.5
 
             for deal in deals_fechados:
                 if not isinstance(deal, dict):
@@ -227,21 +220,22 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         ]
 
         if deals_fechados:
-            assinatura_total = (
-                assinatura if assinatura and float(assinatura) > 0
-                else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
-            )
+            # Em prospecção mantemos visibilidade em Abr/2026/Abr/2027 - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None:
+                    valores[idx_mar_2026] = assinatura_val * 0.51
+                if idx_mar_2027 is not None:
+                    valores[idx_mar_2027] = assinatura_val * 0.51
 
-            # Em prospecção mantemos visibilidade em Abr/2026/Abr/2027
-            if idx_mar_2026 is not None:
-                valores[idx_mar_2026] = assinatura_total * 0.51
-            if idx_mar_2027 is not None:
-                valores[idx_mar_2027] = assinatura_total * 0.51
+                # meses recorrentes com 1% em Prospecção
+                for i, mes in enumerate(meses):
+                    if mes in meses_1pct:
+                        valores[i] = assinatura_val * 0.01
 
-            # meses recorrentes com 1%
+            # meses recorrentes com 1% em FECHADOS (aplicar sempre, independente de assinatura)
             for i, mes in enumerate(meses):
                 if mes in meses_1pct:
-                    valores[i] = assinatura_total * 0.01
                     base_vals[i] = assinatura_fechados * 0.01
 
             # aplica alocação por-deal conforme plano
@@ -287,25 +281,31 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     elif "exsat" in finder_lower:
         # Exsat: aplica percentuais maiores no mês-chave e recorrência 2% nos demais meses
         if deals_fechados:
-            assinatura_total = (
-                assinatura if assinatura and float(assinatura) > 0
-                else sum(float(d.get('assinatura', 0) or 0) for d in deals_fechados)
-            )
+            # Em Prospecção - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None:
+                    valores[idx_mar_2026] = assinatura_val * 1.02
+                if idx_mar_2027 is not None:
+                    valores[idx_mar_2027] = assinatura_val * 1.02
 
-            if idx_mar_2026 is not None:
-                valores[idx_mar_2026] = assinatura_total * 1.02
-            if idx_mar_2027 is not None:
-                valores[idx_mar_2027] = assinatura_total * 1.02
+                # recorrência 2% nos meses a partir do mês seguinte ao mês de aplicação
+                # (inicia em idx_mar_2026 + 1). Não pré-pendemos meses anteriores.
+                if idx_mar_2026 is not None:
+                    start_idx = idx_mar_2026 + 1
+                    for i in range(start_idx, len(meses)):
+                        # não aplicar no(s) meses de aplicação (caso coincidam)
+                        if i == idx_mar_2026 or i == idx_mar_2027:
+                            continue
+                        valores[i] = assinatura_val * 0.02
 
-            # recorrência 2% nos meses a partir do mês seguinte ao mês de aplicação
-            # (inicia em idx_mar_2026 + 1). Não pré-pendemos meses anteriores.
+            # recorrência 2% em FECHADOS (aplicar sempre, independente de assinatura)
             if idx_mar_2026 is not None:
                 start_idx = idx_mar_2026 + 1
                 for i in range(start_idx, len(meses)):
                     # não aplicar no(s) meses de aplicação (caso coincidam)
                     if i == idx_mar_2026 or i == idx_mar_2027:
                         continue
-                    valores[i] = assinatura_total * 0.02
                     base_vals[i] = base_vals[i] + (assinatura_fechados * 0.02)
             else:
                 # fallback conservador: se não souber o índice, não aplicar recorrência
@@ -410,7 +410,9 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
 
     plt.tight_layout()
     distrib_chart_path = os.path.join("chart_distribuicao_parceiro.png")
-    plt.savefig(distrib_chart_path, dpi=150, bbox_inches="tight")
+    # Salva sem usar bbox_inches="tight" para evitar cálculo errado de dimensões
+    # quando há muitos rótulos rotacionados. Usa pad_inches para margem
+    plt.savefig(distrib_chart_path, dpi=150, pad_inches=0.3)
     plt.close()
 
     return distrib_chart_path

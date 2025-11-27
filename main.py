@@ -20,7 +20,17 @@ def main():
     os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files', exist_ok=True)
 
     # --- PDFs por Finder (child_files) ---
-    for finder_name, totals in deals_by_finder.items():
+    # Itera sobre a UNIÃO de finders de ambos os pipelines (PROSPECCAO + FECHADOS)
+    # Assim garante que finders que existem APENAS em FECHADOS também geram PDFs
+    all_finders = set(deals_by_finder.keys()) | set(deals_by_finder_fechados.keys())
+    
+    for finder_name in sorted(all_finders):
+        totals = deals_by_finder.get(finder_name, {
+            "fatura_cheia": 0.0,
+            "assinatura": 0.0,
+            "nao_compensavel": 0.0,
+            "vinte_cinco_porcento": 0.0
+        })
         assinatura_fechados_val = deals_by_finder_fechados.get(finder_name, {}).get("assinatura_fechados", 0.0)
         generate_pdf(
             finder_name,
@@ -28,7 +38,7 @@ def main():
             totals["assinatura"],
             totals["nao_compensavel"],
             totals["vinte_cinco_porcento"],
-            deals_prospeccao[finder_name],
+            deals_prospeccao.get(finder_name, []),
             deals_fechados.get(finder_name, []),
             assinatura_fechados_val,
             pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files'

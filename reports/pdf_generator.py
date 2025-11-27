@@ -52,14 +52,18 @@ def generate_pdf(
     # === DADOS BÁSICOS ===
     sanitized_name = finder_name.replace(" ", "_").replace("/", "_")
     pdf_path = os.path.join(pasta_saida, f"{sanitized_name}.pdf")
-    # Garante que, para finders como 'indique', usemos o total de 'assinatura'
-    # proveniente de `deals_fechados` caso o agregado `assinatura` seja zero.
+    
+    # assinatura_display é usado apenas para exibição na tabela de dados
+    # Para o gráfico, usamos o assinatura original (0 se não houver em PROSPECCAO)
     try:
         assinatura_display = float(assinatura) if assinatura and float(assinatura) > 0 else sum(float(d.get('assinatura', 0) or 0) for d in (deals_fechados or []))
     except Exception:
         assinatura_display = assinatura
+    
+    # Para passar ao gráfico, usa o valor original de assinatura (sem fallback para deals_fechados)
+    assinatura_para_grafico = float(assinatura) if assinatura and float(assinatura) > 0 else 0
 
-    distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura_display, assinatura_fechados, deals_fechados)
+    distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura_para_grafico, assinatura_fechados, deals_fechados)
 
     # === PALHETA DE CORES ===
     COLOR_FATURA = "#002644"
@@ -137,7 +141,8 @@ def generate_pdf(
 
     plt.tight_layout()
     chart_path = "chart_main.png"
-    plt.savefig(chart_path, dpi=150, bbox_inches="tight")
+    # Salva sem bbox_inches="tight" para evitar cálculo errado de dimensões com rótulos
+    plt.savefig(chart_path, dpi=150, pad_inches=0.3)
     plt.close()
 
     # === CRIAÇÃO DO PDF ===
