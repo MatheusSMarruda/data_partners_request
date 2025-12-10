@@ -151,11 +151,19 @@ def generate_pdf(
     styles = getSampleStyleSheet()
     truncate_style = ParagraphStyle(name="Truncate", fontSize=8, leading=10, wordWrap="CJK")
 
+    # === INFORMAÇÕES DO PARCEIRO (Precisa ser antes do título) ===
+    try:
+        partes = finder_name.split(" - ")
+        tipo_parceria = partes[1].strip() if len(partes) >= 3 else partes[-1].strip()
+        parceiro = partes[2].strip() if len(partes) >= 3 else finder_name
+    except Exception:
+        tipo_parceria, parceiro = "N/A", finder_name
+
     # === CABEÇALHO COM FAIXA E LOGO ===
     logo_path = r"C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\tempo-geracao-logo.png"
     titulo_style = ParagraphStyle(name="TituloCabecalho", fontSize=14,
                                  textColor=colors.white, leftIndent=10, alignment=0, leading=16)
-    titulo = Paragraph("<b>Análise de Prospecção e Fechamentos</b>", titulo_style)
+    titulo = Paragraph(f"<b>Relatório de Estimativa de Retribuição - {parceiro}</b>", titulo_style)
     logo = Image(logo_path, width=105, height=35)
     header_data = [[titulo, logo]]
     header_table = Table(header_data, colWidths=[400, 100], hAlign="LEFT")
@@ -165,38 +173,103 @@ def generate_pdf(
         ("ALIGN", (1, 0), (1, 0), "RIGHT"),
     ]))
     story.append(header_table)
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 20))
 
-    # === INFORMAÇÕES DO PARCEIRO ===
-    try:
-        partes = finder_name.split(" - ")
-        tipo_parceria = partes[1].strip() if len(partes) >= 3 else partes[-1].strip()
-        parceiro = partes[2].strip() if len(partes) >= 3 else finder_name
-    except Exception:
-        tipo_parceria, parceiro = "N/A", finder_name
-
-    data_atual = datetime.now().strftime("%d/%m/%Y")
-    info_style = ParagraphStyle(name="Info", fontSize=10, leading=14, textColor=colors.HexColor("#1B2124"))
-    story.append(Paragraph(f"<b>Parceiro:</b> {parceiro}", info_style))
-    story.append(Paragraph(f"<b>Tipo de Parceria:</b> {tipo_parceria}", info_style))
-    story.append(Paragraph(f"<b>Data:</b> {data_atual}", info_style))
-    story.append(Spacer(1, 12))
-
-    # === PÁGINA 1: GRÁFICOS ===
-    story.append(Image(chart_path, width=400, height=220))
-    story.append(Spacer(1, 10))
-    story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
+    # === SEÇÃO 1: INTRODUÇÃO ===
+    intro_heading = ParagraphStyle(name="IntroHeading", fontSize=11, fontName="Helvetica-Bold", 
+                                   textColor=colors.HexColor("#002644"), leading=14)
+    intro_text = ParagraphStyle(name="IntroText", fontSize=10, leading=14, 
+                               textColor=colors.HexColor("#1B2124"), alignment=4)
+    
+    story.append(Paragraph("<b>1. INTRODUÇÃO</b>", intro_heading))
     story.append(Spacer(1, 6))
-    story.append(Image(distrib_chart_path, width=450, height=200))
-    story.append(Spacer(1, 8))
-    info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),
-                                     alignment=1, italic=True)
-    info_text = Paragraph("Esta é uma estimativa de comissão, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
-    story.append(info_text)
-    story.append(PageBreak())
+    story.append(Paragraph(f"Este relatório apresenta o acompanhamento das métricas referentes a <b>{parceiro}</b>, no que se refere a prospecções e fechamentos.", intro_text))
+    story.append(Spacer(1, 20))
+
+    # === SEÇÃO 2: DADOS GERAIS ===
+    story.append(Paragraph("<b>2. DADOS GERAIS</b>", intro_heading))
+    story.append(Spacer(1, 6))
+    
+    # Extrai o código do finder (primeira parte antes do primeiro " - ")
+    codigo_finder = finder_name.split(" - ")[0] if " - " in finder_name else "N/A"
+    
+    # Formata a data por extenso
+    data_atual_extenso = datetime.now().strftime("%d de %B de %Y")
+    meses_pt = {
+        "January": "janeiro", "February": "fevereiro", "March": "março", "April": "abril",
+        "May": "maio", "June": "junho", "July": "julho", "August": "agosto",
+        "September": "setembro", "October": "outubro", "November": "novembro", "December": "dezembro"
+    }
+    for mes_en, mes_pt in meses_pt.items():
+        data_atual_extenso = data_atual_extenso.replace(mes_en, mes_pt)
+    
+    dados_gerais_style = ParagraphStyle(name="DadosGerais", fontSize=10, leading=16, 
+                                       textColor=colors.HexColor("#1B2124"))
+    
+    story.append(Paragraph(f"<b>•&nbsp;&nbsp;NOME:</b> {parceiro}", dados_gerais_style))
+    story.append(Paragraph("<b>•&nbsp;&nbsp;CÓDIGO DO PARCEIRO:</b>", dados_gerais_style))
+    story.append(Paragraph(f"<b>•&nbsp;&nbsp;MODALIDADE DE PARCERIA:</b> {tipo_parceria}", dados_gerais_style))
+    story.append(Paragraph(f"<b>•&nbsp;&nbsp;DATA DA ANÁLISE:</b> {data_atual_extenso}", dados_gerais_style))
+    story.append(Spacer(1, 20))
+
+    # === SEÇÃO 3: METRICAS DE FECHAMENTO === #
+    story.append(Paragraph("<b>3. MÉTRICAS DE FECHAMENTO</b>", intro_heading))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação dos fechamentos realizados por {parceiro}:"))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph("A relação de consorciados, com as suas respectivas datas de assinatura, tal como o parceiro subcontratado responsável, encontra-se descrita abaixo:"))
 
     # === IDENTIFICA SE É MOTHER FILE ===
     is_mother = "mother_files" in pasta_saida.lower()
+
+    # === TABELA FECHADOS (Formato BR já estava correto) ===
+    if deals_fechados:
+        story.append(Paragraph("Fechados:", styles["Heading2"]))
+        if is_mother:
+            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Valor da Fatura (R$)"]
+            col_widths = [130, 90, 130, 110, 140]
+        else:
+            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Valor da Fatura (R$)"]
+            col_widths = [200, 120, 100, 140]
+
+        cell_text = []
+        for d in deals_fechados:
+            nome = Paragraph(d["title"][:40], truncate_style)
+            data_ass = Paragraph(d.get("data_assinatura", "-"), truncate_style)
+            plano = Paragraph(d.get("plano_assinado", "-"), truncate_style)
+            
+            # --- LÓGICA DE FORMATO BR (MANTIDA) ---
+            valor_formatado_eua = f'{d["value"]:,.2f}'
+            valor_formatado_br = valor_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
+            valor = Paragraph(f'R$ {valor_formatado_br}', truncate_style)
+            # ---------------------------------------------
+
+            if is_mother:
+                finder_value = d.get('finder', 'N/A')
+                subcontratado_txt = finder_value[:40] + ("..." if len(finder_value) > 40 else "")
+                subcontratado_p = Paragraph(subcontratado_txt, truncate_style)
+                cell_text.append([nome, data_ass, subcontratado_p, plano, valor])
+            else:
+                cell_text.append([nome, data_ass, plano, valor])
+
+        table_fechados = Table([col_labels] + cell_text, colWidths=col_widths)
+        table_fechados.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ("ALIGN", (-1, 1), (-1, -1), "RIGHT"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        story.append(table_fechados)
+    
+    story.append(Spacer(1, 20))
+
+    # === SEÇÃO 4: METRICAS DE PROSPECÇÃO === #
+    story.append(Paragraph("<b>3. MÉTRICAS DE PROSPECÇÃO</b>", intro_heading))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação das prospecções realizadas por {parceiro}:"))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph("A relação de leads, com as suas respectivas datas de assinatura, encontra-se descrita abaixo:"))
 
     # === TABELA EM PROSPECÇÃO (Formato BR já estava correto) ===
     if deals_prospeccao:
@@ -238,45 +311,18 @@ def generate_pdf(
         story.append(table_prospec)
         story.append(Spacer(1, 20))
 
-    # === TABELA FECHADOS (Formato BR já estava correto) ===
-    if deals_fechados:
-        story.append(Paragraph("Fechados:", styles["Heading2"]))
-        if is_mother:
-            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Valor da Fatura (R$)"]
-            col_widths = [130, 90, 130, 110, 140]
-        else:
-            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Valor da Fatura (R$)"]
-            col_widths = [200, 120, 100, 140]
-
-        cell_text = []
-        for d in deals_fechados:
-            nome = Paragraph(d["title"][:40], truncate_style)
-            data_ass = Paragraph(d.get("data_assinatura", "-"), truncate_style)
-            plano = Paragraph(d.get("plano_assinado", "-"), truncate_style)
-            
-            # --- LÓGICA DE FORMATO BR (MANTIDA) ---
-            valor_formatado_eua = f'{d["value"]:,.2f}'
-            valor_formatado_br = valor_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
-            valor = Paragraph(f'R$ {valor_formatado_br}', truncate_style)
-            # ---------------------------------------------
-
-            if is_mother:
-                finder_value = d.get('finder', 'N/A')
-                subcontratado_txt = finder_value[:40] + ("..." if len(finder_value) > 40 else "")
-                subcontratado_p = Paragraph(subcontratado_txt, truncate_style)
-                cell_text.append([nome, data_ass, subcontratado_p, plano, valor])
-            else:
-                cell_text.append([nome, data_ass, plano, valor])
-
-        table_fechados = Table([col_labels] + cell_text, colWidths=col_widths)
-        table_fechados.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-            ("ALIGN", (-1, 1), (-1, -1), "RIGHT"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ]))
-        story.append(table_fechados)
+    # === PÁGINA 1: GRÁFICOS ===
+    story.append(Image(chart_path, width=400, height=220))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
+    story.append(Spacer(1, 6))
+    story.append(Image(distrib_chart_path, width=450, height=200))
+    story.append(Spacer(1, 8))
+    info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),
+                                     alignment=1, italic=True)
+    info_text = Paragraph("Esta é uma estimativa de comissão, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
+    story.append(info_text)
+    story.append(PageBreak())
 
     doc.build(story)
     print(f"✅ PDF gerado com sucesso: {pdf_path}")
