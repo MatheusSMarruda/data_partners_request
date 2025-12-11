@@ -41,13 +41,23 @@ def process_finder_field(finder_value, finder_mapping, return_meta=False):
 
     - Remove partes com 'interno' para formar o finder_clean.
     - Detecta se havia 'interno' antes de remover (has_interno).
+    - Rastreia o ID original antes da resolução do mapeamento (finder_id).
 
     Se return_meta=True retorna:
-        (finder_clean, has_interno, finder_resolved_raw)
+        (finder_clean, has_interno, finder_resolved_raw, finder_id)
     Caso contrário, retorna apenas finder_clean (como hoje).
     """
     if not finder_value:
-        return (None, False, None) if return_meta else None
+        return (None, False, None, None) if return_meta else None
+
+    # Preserva o ID original antes da resolução
+    if isinstance(finder_value, list):
+        finder_ids = [str(part) for part in finder_value]
+    else:
+        finder_ids = [str(part).strip() for part in str(finder_value).split(",")]
+    
+    # Usa o primeiro ID como identificador principal
+    finder_id = finder_ids[0] if finder_ids else None
 
     # Resolve ids -> labels
     if isinstance(finder_value, list):
@@ -65,7 +75,7 @@ def process_finder_field(finder_value, finder_mapping, return_meta=False):
 
     if return_meta:
         finder_resolved_raw = ", ".join(resolved_parts) if resolved_parts else None
-        return finder_clean, has_interno, finder_resolved_raw
+        return finder_clean, has_interno, finder_resolved_raw, finder_id
 
     return finder_clean
 

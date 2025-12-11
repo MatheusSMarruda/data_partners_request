@@ -89,7 +89,7 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                         custom_fields = deal.get("custom_fields", {})
                         finder = custom_fields.get(custom_field_keys["finder"])
 
-                    processed_finder, has_interno, finder_raw = process_finder_field(
+                    processed_finder, has_interno, finder_raw, finder_id = process_finder_field(
                         finder, 
                         finder_mapping, 
                         return_meta=True
@@ -105,7 +105,8 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                             "assinatura": 0.0,
                             "nao_compensavel": 0.0,
                             "vinte_cinco_porcento": 0.0,
-                            "assinatura_fechados": 0.0
+                            "assinatura_fechados": 0.0,
+                            "finder_id": finder_id  # Armazena o ID original do finder
                         }
 
                     nome = deal.get("title", "Sem Nome")
@@ -157,10 +158,10 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                     "data_entrada": data_entrada,
                     "plano_assinado": plano_assinado_label,
                     "data_assinatura": data_assinatura_formatada,
-
                     # >>> TÓPICO 2 AQUI <<<
                     "finder_raw": finder_raw,      # texto completo resolvido (com Interno)
                     "has_interno": has_interno,    # True/False por deal
+                    "finder_id": finder_id,        # ID original do finder no Pipedrive
                 })
 
                     # === CÁLCULOS DE TOTAIS ===

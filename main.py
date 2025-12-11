@@ -29,9 +29,16 @@ def main():
             "fatura_cheia": 0.0,
             "assinatura": 0.0,
             "nao_compensavel": 0.0,
-            "vinte_cinco_porcento": 0.0
+            "vinte_cinco_porcento": 0.0,
+            "finder_id": "N/A"
         })
         assinatura_fechados_val = deals_by_finder_fechados.get(finder_name, {}).get("assinatura_fechados", 0.0)
+        
+        # Tenta obter finder_id de PROSPECCAO, senão tenta de FECHADOS
+        finder_id = totals.get("finder_id", "N/A")
+        if finder_id == "N/A":
+            finder_id = deals_by_finder_fechados.get(finder_name, {}).get("finder_id", "N/A")
+        
         generate_pdf(
             finder_name,
             totals["fatura_cheia"],
@@ -41,6 +48,7 @@ def main():
             deals_prospeccao.get(finder_name, []),
             deals_fechados.get(finder_name, []),
             assinatura_fechados_val,
+            finder_id,
             pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files'
         )
 
@@ -75,6 +83,7 @@ def main():
             categoria_prospeccao[categoria],
             categoria_fechados[categoria],
             assinatura_fechados_val,
+            "N/A",
             pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files'
         )
 

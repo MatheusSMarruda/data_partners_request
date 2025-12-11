@@ -47,6 +47,7 @@ def generate_pdf(
     deals_prospeccao,
     deals_fechados,
     assinatura_fechados,
+    finder_id,
     pasta_saida
 ):
     # === DADOS BÁSICOS ===
@@ -190,8 +191,8 @@ def generate_pdf(
     story.append(Paragraph("<b>2. DADOS GERAIS</b>", intro_heading))
     story.append(Spacer(1, 6))
     
-    # Extrai o código do finder (primeira parte antes do primeiro " - ")
-    codigo_finder = finder_name.split(" - ")[0] if " - " in finder_name else "N/A"
+    # Usa o finder_id passado como parâmetro, que é o ID original no Pipedrive
+    codigo_finder = finder_id if finder_id and finder_id != "N/A" else "N/A"
     
     # Formata a data por extenso
     data_atual_extenso = datetime.now().strftime("%d de %B de %Y")
@@ -207,7 +208,7 @@ def generate_pdf(
                                        textColor=colors.HexColor("#1B2124"))
     
     story.append(Paragraph(f"<b>•&nbsp;&nbsp;NOME:</b> {parceiro}", dados_gerais_style))
-    story.append(Paragraph("<b>•&nbsp;&nbsp;CÓDIGO DO PARCEIRO:</b>", dados_gerais_style))
+    story.append(Paragraph(f"<b>•&nbsp;&nbsp;CÓDIGO DO PARCEIRO:</b> {codigo_finder}", dados_gerais_style))
     story.append(Paragraph(f"<b>•&nbsp;&nbsp;MODALIDADE DE PARCERIA:</b> {tipo_parceria}", dados_gerais_style))
     story.append(Paragraph(f"<b>•&nbsp;&nbsp;DATA DA ANÁLISE:</b> {data_atual_extenso}", dados_gerais_style))
     story.append(Spacer(1, 20))
