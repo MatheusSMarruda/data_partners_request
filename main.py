@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend
+
 from services.pipedrive_service import analyze_deals_in_pipeline
 from reports.pdf_generator import generate_pdf
 from config import API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS

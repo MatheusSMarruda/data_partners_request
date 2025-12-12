@@ -253,20 +253,51 @@ def generate_pdf(
             else:
                 cell_text.append([nome, data_ass, plano, valor])
 
-        table_fechados = Table([col_labels] + cell_text, colWidths=col_widths)
+        # Calcula o total
+        total_fechados = sum(float(d["value"]) for d in deals_fechados)
+        valor_total_formatado_eua = f'{total_fechados:,.2f}'
+        valor_total_formatado_br = valor_total_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
+        
+        # Cria a linha de total
+        if is_mother:
+            total_row = [
+                Paragraph("<b>TOTAL</b>", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
+            ]
+        else:
+            total_row = [
+                Paragraph("<b>TOTAL</b>", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
+            ]
+        
+        # Monta os dados da tabela com a linha de total
+        table_data = [col_labels] + cell_text + [total_row]
+        num_rows = len(table_data)
+        
+        # Cria a tabela com todos os dados
+        table_fechados = Table(table_data, colWidths=col_widths)
         table_fechados.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
             ("ALIGN", (-1, 1), (-1, -1), "RIGHT"),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            # Estilo para a última linha (total)
+            ("BACKGROUND", (0, num_rows-1), (-1, num_rows-1), colors.HexColor("#E0E0E0")),
+            ("FONTNAME", (0, num_rows-1), (-1, num_rows-1), "Helvetica-Bold"),
         ]))
+        
         story.append(table_fechados)
     
     story.append(Spacer(1, 20))
 
     # === SEÇÃO 4: METRICAS DE PROSPECÇÃO === #
-    story.append(Paragraph("<b>3. MÉTRICAS DE PROSPECÇÃO</b>", intro_heading))
+    story.append(Paragraph("<b>4. MÉTRICAS DE PROSPECÇÃO</b>", intro_heading))
     story.append(Spacer(1, 6))
     story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação das prospecções realizadas por {parceiro}:"))
     story.append(Spacer(1, 6))
@@ -301,16 +332,54 @@ def generate_pdf(
             else:
                 cell_text.append([nome, data_entrada, valor])
 
-        table_prospec = Table([col_labels] + cell_text, colWidths=col_widths)
+        # Calcula o total
+        total_prospeccao = sum(float(d["value"]) for d in deals_prospeccao)
+        valor_total_formatado_eua = f'{total_prospeccao:,.2f}'
+        valor_total_formatado_br = valor_total_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
+        
+        # Cria a linha de total
+        if is_mother:
+            total_row = [
+                Paragraph("<b>TOTAL</b>", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
+            ]
+        else:
+            total_row = [
+                Paragraph("<b>TOTAL</b>", truncate_style),
+                Paragraph("", truncate_style),
+                Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
+            ]
+        
+        # Monta os dados da tabela com a linha de total
+        table_data = [col_labels] + cell_text + [total_row]
+        num_rows = len(table_data)
+        
+        # Cria a tabela com todos os dados
+        table_prospec = Table(table_data, colWidths=col_widths)
         table_prospec.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
             ("ALIGN", (-1, 1), (-1, -1), "RIGHT"),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            # Estilo para a última linha (total)
+            ("BACKGROUND", (0, num_rows-1), (-1, num_rows-1), colors.HexColor("#E0E0E0")),
+            ("FONTNAME", (0, num_rows-1), (-1, num_rows-1), "Helvetica-Bold"),
         ]))
+        
         story.append(table_prospec)
         story.append(Spacer(1, 20))
+
+    # === SEÇÃO 5: AVALIAÇÃO DE ESTIMATIVA DE RETRIBUIÇÃO === #
+    story.append(Paragraph("<b>5. Avaliação de Estimativa de Retribuição - Consorciados e Leads em Prospecção</b>", intro_heading))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"Com o objetivo de apresentar uma estimativa de retribuição referente aos leads atualmente em prospecção, foi considerada, para fins de simulação, a média de consumo declarada durante o processo de prospecção e a adoção do plano de benefício de" #Adicionar variavel 'Maximo percentual do beneficio por parceiro
+                           "com fidelidade de" #Adicionar variavel 'fidelidade máxima por parceiro
+                                                , intro_text))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph("Dessa forma, ao consolidar os potenciais leads, obtém-se a visão geral apresentada na abaixo, que demonstra o comparativo dos somatórios dos valores médios com e sem o benefício TG, destacando a economia percebida e o valor médio de assinatura.", intro_text))
 
     # === PÁGINA 1: GRÁFICOS ===
     story.append(Image(chart_path, width=400, height=220))
@@ -326,4 +395,4 @@ def generate_pdf(
     story.append(PageBreak())
 
     doc.build(story)
-    print(f"✅ PDF gerado com sucesso: {pdf_path}")
+    print(f"PDF gerado com sucesso: {pdf_path}")
