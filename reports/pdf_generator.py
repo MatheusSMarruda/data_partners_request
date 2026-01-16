@@ -227,11 +227,11 @@ def generate_pdf(
     if deals_fechados:
         story.append(Paragraph("Fechados:", styles["Heading2"]))
         if is_mother:
-            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Assinatura (R$)", "Valor da Fatura (R$)"]
-            col_widths = [100, 85, 110, 90, 110, 120]
+            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
+            col_widths = [100, 85, 110, 90, 130, 100]
         else:
-            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Assinatura (R$)", "Valor da Fatura (R$)"]
-            col_widths = [160, 100, 90, 110, 120]
+            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
+            col_widths = [160, 100, 90, 130, 100]
 
         cell_text = []
         for d in deals_fechados:
