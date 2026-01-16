@@ -1,0 +1,8 @@
+Ajustar relatório de parceiro:
+Remover a caixa azul colocando o 'Tema do documento' centralizado.
+Logo colocar no cabeçalho no canto superior direito.
+Ajustar na tabela de fechamento o nome da coluna Assintatura (R$) para Estimativa de Retribuição.
+Ajustar proporção da largura da coluna para que fique do tamanho da largura dos textos.
+Justificar todo o texto.
+Ajustar a formatação do texto "Importante"
+A fidelidade normal referente aos demais parceiros é igual a 3 anos.

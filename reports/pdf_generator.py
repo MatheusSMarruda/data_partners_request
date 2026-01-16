@@ -216,9 +216,9 @@ def generate_pdf(
     # === SEÇÃO 3: METRICAS DE FECHAMENTO === #
     story.append(Paragraph("<b>3. MÉTRICAS DE FECHAMENTO</b>", intro_heading))
     story.append(Spacer(1, 6))
-    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação dos fechamentos realizados por {parceiro}:"))
+    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação de fechamentos realizados pelo parceiro  {parceiro}:"))
     story.append(Spacer(1, 6))
-    story.append(Paragraph("A relação de consorciados, com as suas respectivas datas de assinatura, tal como o parceiro subcontratado responsável, encontra-se descrita abaixo:"))
+    story.append(Paragraph("A relação de consorciados, com suas respectivas datas de assinatura, subcontratados (se houver), valores de fatura e estimativas de retribuição encontra-se descrita abaixo:"))
 
     # === IDENTIFICA SE É MOTHER FILE ===
     is_mother = "mother_files" in pasta_saida.lower()
@@ -227,17 +227,27 @@ def generate_pdf(
     if deals_fechados:
         story.append(Paragraph("Fechados:", styles["Heading2"]))
         if is_mother:
-            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Valor da Fatura (R$)"]
-            col_widths = [130, 90, 130, 110, 140]
+            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Assinatura (R$)", "Valor da Fatura (R$)"]
+            col_widths = [100, 85, 110, 90, 110, 120]
         else:
-            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Valor da Fatura (R$)"]
-            col_widths = [200, 120, 100, 140]
+            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Assinatura (R$)", "Valor da Fatura (R$)"]
+            col_widths = [160, 100, 90, 110, 120]
 
         cell_text = []
         for d in deals_fechados:
             nome = Paragraph(d["title"][:40], truncate_style)
             data_ass = Paragraph(d.get("data_assinatura", "-"), truncate_style)
             plano = Paragraph(d.get("plano_assinado", "-"), truncate_style)
+            
+            # Formata assinatura como valor monetário
+            assinatura_value = d.get("assinatura", 0)
+            try:
+                assinatura_value = float(assinatura_value) if assinatura_value else 0
+                assinatura_formatado_eua = f'{assinatura_value:,.2f}'
+                assinatura_formatado = f'R$ {assinatura_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
+            except:
+                assinatura_formatado = "-"
+            assinatura = Paragraph(assinatura_formatado, truncate_style)
             
             # --- LÓGICA DE FORMATO BR (MANTIDA) ---
             valor_formatado_eua = f'{d["value"]:,.2f}'
@@ -249,14 +259,19 @@ def generate_pdf(
                 finder_value = d.get('finder', 'N/A')
                 subcontratado_txt = finder_value[:40] + ("..." if len(finder_value) > 40 else "")
                 subcontratado_p = Paragraph(subcontratado_txt, truncate_style)
-                cell_text.append([nome, data_ass, subcontratado_p, plano, valor])
+                cell_text.append([nome, data_ass, subcontratado_p, plano, assinatura, valor])
             else:
-                cell_text.append([nome, data_ass, plano, valor])
+                cell_text.append([nome, data_ass, plano, assinatura, valor])
 
         # Calcula o total
         total_fechados = sum(float(d["value"]) for d in deals_fechados)
         valor_total_formatado_eua = f'{total_fechados:,.2f}'
         valor_total_formatado_br = valor_total_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
+        
+        # Calcula o total de assinatura
+        total_assinatura = sum(float(d.get("assinatura", 0) or 0) for d in deals_fechados)
+        total_assinatura_formatado_eua = f'{total_assinatura:,.2f}'
+        total_assinatura_formatado_br = f'R$ {total_assinatura_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
         
         # Cria a linha de total
         if is_mother:
@@ -265,6 +280,7 @@ def generate_pdf(
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
+                Paragraph(f"<b>{total_assinatura_formatado_br}</b>", truncate_style),
                 Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
             ]
         else:
@@ -272,6 +288,7 @@ def generate_pdf(
                 Paragraph("<b>TOTAL</b>", truncate_style),
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
+                Paragraph(f"<b>{total_assinatura_formatado_br}</b>", truncate_style),
                 Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
             ]
         
@@ -299,9 +316,9 @@ def generate_pdf(
     # === SEÇÃO 4: METRICAS DE PROSPECÇÃO === #
     story.append(Paragraph("<b>4. MÉTRICAS DE PROSPECÇÃO</b>", intro_heading))
     story.append(Spacer(1, 6))
-    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação das prospecções realizadas por {parceiro}:"))
+    story.append(Paragraph(f"Referente as métricas presentes em nossa base, segue a relação de prospecções que ainda não foram convertidas em fechamentos, realizadas pelo parceiro: {parceiro}:"))
     story.append(Spacer(1, 6))
-    story.append(Paragraph("A relação de leads, com as suas respectivas datas de assinatura, encontra-se descrita abaixo:"))
+    story.append(Paragraph("A relação de leads, com suas respectivas datas de entradas, encontram-se descritas abaixo:"))
 
     # === TABELA EM PROSPECÇÃO (Formato BR já estava correto) ===
     if deals_prospeccao:
@@ -375,24 +392,37 @@ def generate_pdf(
     # === SEÇÃO 5: AVALIAÇÃO DE ESTIMATIVA DE RETRIBUIÇÃO === #
     story.append(Paragraph("<b>5. Avaliação de Estimativa de Retribuição - Consorciados e Leads em Prospecção</b>", intro_heading))
     story.append(Spacer(1, 12))
-    story.append(Paragraph(f"Com o objetivo de apresentar uma estimativa de retribuição referente aos leads atualmente em prospecção, foi considerada, para fins de simulação, a média de consumo declarada durante o processo de prospecção e a adoção do plano de benefício de" #Adicionar variavel 'Maximo percentual do beneficio por parceiro
-                           "com fidelidade de" #Adicionar variavel 'fidelidade máxima por parceiro
-                                                , intro_text))
+    
+    # Define percentual máximo de benefício e fidelidade máxima por parceiro
+    if "GF CAPITAL" in parceiro.upper() and "ANDERSON" in parceiro.upper():
+        percentual_beneficio = "22%"
+        fidelidade_maxima = "3 anos"
+    elif "LINKNET" in parceiro.upper():
+        percentual_beneficio = "18%"
+        fidelidade_maxima = "1 ano"
+    else:
+        percentual_beneficio = "25%"
+        fidelidade_maxima = "3 anos"  # Valor padrão caso não seja especificado
+    
+    story.append(Paragraph(f"Com o objetivo de apresentar uma estimativa de retribuição referente aos leads atualmente em prospecção, foi considerada, para fins de simulação, a média de consumo declarada durante o processo de prospecção e a adoção do plano de benefício de {percentual_beneficio} com fidelidade de {fidelidade_maxima}.", intro_text))
     story.append(Spacer(1, 12))
     story.append(Paragraph("Dessa forma, ao consolidar os potenciais leads, obtém-se a visão geral apresentada na abaixo, que demonstra o comparativo dos somatórios dos valores médios com e sem o benefício TG, destacando a economia percebida e o valor médio de assinatura.", intro_text))
 
-    # === PÁGINA 1: GRÁFICOS ===
-    story.append(Image(chart_path, width=400, height=220))
-    story.append(Spacer(1, 10))
+    # === Gráfico 1 Estimativas para Fechamento ===#
     story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
     story.append(Spacer(1, 6))
+    story.append(Image(chart_path, width=400, height=220))
+    story.append(Spacer(1, 10))
+
+    story.append(Paragraph("A estimativa de retribuição é calculada com base no valor líquido pago pelo cliente, correspondente ao valor da assinatura. A seguir, apresentamos a projeção elaborada considerando a hipótese de conversão integral dos leads prospectados, oferecendo uma visão do potencial estimado de retribuição e também dos consorciados que realizaram a adesão.", intro_text))
+    story.append(Spacer(1, 16))
+    story.append(Paragraph("Importante:Trata-se de uma estimativa, sujeita a variações conforme a taxa real de conversão, plano escolhido, consumo compensado e outros fatores operacionais.", intro_heading))
+
+    #=== Gráfico 2 de distribuição de parceiros ===#
     story.append(Image(distrib_chart_path, width=450, height=200))
     story.append(Spacer(1, 8))
-    info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),
-                                     alignment=1, italic=True)
+    info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),alignment=1, italic=True)
     info_text = Paragraph("Esta é uma estimativa de comissão, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
-    story.append(info_text)
-    story.append(PageBreak())
 
     doc.build(story)
     print(f"PDF gerado com sucesso: {pdf_path}")
