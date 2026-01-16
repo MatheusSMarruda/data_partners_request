@@ -150,7 +150,8 @@ def generate_pdf(
     doc = SimpleDocTemplate(pdf_path, pagesize=letter, topMargin=36, bottomMargin=36)
     story = []
     styles = getSampleStyleSheet()
-    truncate_style = ParagraphStyle(name="Truncate", fontSize=8, leading=10, wordWrap="CJK")
+    truncate_style = ParagraphStyle(name="Truncate", fontSize=6, leading=8, wordWrap="CJK")
+    header_style = ParagraphStyle(name="Header", fontSize=6, leading=8, textColor=colors.whitesmoke)
 
     # === INFORMAÇÕES DO PARCEIRO (Precisa ser antes do título) ===
     try:
@@ -167,7 +168,7 @@ def generate_pdf(
     titulo = Paragraph(f"<b>Relatório de Estimativa de Retribuição - {parceiro}</b>", titulo_style)
     logo = Image(logo_path, width=105, height=35)
     header_data = [[titulo, logo]]
-    header_table = Table(header_data, colWidths=[400, 100], hAlign="LEFT")
+    header_table = Table(header_data, colWidths=[374, 94], hAlign="LEFT")
     header_table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#002644")),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -228,10 +229,11 @@ def generate_pdf(
         story.append(Paragraph("Fechados:", styles["Heading2"]))
         if is_mother:
             col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
-            col_widths = [100, 85, 110, 90, 130, 100]
+            col_widths = [76, 65, 84, 68, 99, 76]
         else:
             col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
-            col_widths = [160, 100, 90, 130, 100]
+            col_widths = [129, 81, 73, 105, 81]
+        col_labels = [Paragraph(label, header_style) for label in col_labels]
 
         cell_text = []
         for d in deals_fechados:
@@ -325,10 +327,11 @@ def generate_pdf(
         story.append(Paragraph("Em Prospecção:", styles["Heading2"]))
         if is_mother:
             col_labels = ["Nome", "Data de Entrada", "Subcontratado", "Valor da Fatura (R$)"]
-            col_widths = [150, 100, 150, 120]
+            col_widths = [135, 90, 135, 108]
         else:
             col_labels = ["Nome", "Data de Entrada", "Valor da Fatura (R$)"]
-            col_widths = [200, 160, 120]
+            col_widths = [195, 156, 117]
+        col_labels = [Paragraph(label, header_style) for label in col_labels]
 
         cell_text = []
         for d in deals_prospeccao:
