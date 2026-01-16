@@ -412,7 +412,7 @@ def generate_pdf(
     story.append(Paragraph("Dessa forma, ao consolidar os potenciais leads, obtém-se a visão geral apresentada na abaixo, que demonstra o comparativo dos somatórios dos valores médios com e sem o benefício TG, destacando a economia percebida e o valor médio de assinatura.", intro_text))
 
     # === Gráfico 1 Estimativas para Fechamento ===#
-    story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
+    story.append(Paragraph("Valor Médio Estimado de retribuição - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
     story.append(Spacer(1, 6))
     story.append(Image(chart_path, width=400, height=220))
     story.append(Spacer(1, 10))
@@ -425,7 +425,7 @@ def generate_pdf(
     story.append(Image(distrib_chart_path, width=450, height=200))
     story.append(Spacer(1, 8))
     info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),alignment=1, italic=True)
-    info_text = Paragraph("Esta é uma estimativa de comissão, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
+    info_text = Paragraph("Esta é uma estimativa de retribuição, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
 
     doc.build(story)
     print(f"PDF gerado com sucesso: {pdf_path}")

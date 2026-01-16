@@ -167,7 +167,7 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
         # Regras INDIQUE por plano (para FECHADOS):
         # - Plano 15% -> 15% em Mar/2026
         # - Plano 20% -> 50% em Mar/2026
-        # - Plano 25% -> 50% em Mar/2026 e 50% em Mar/2027
+        # - Plano 25% -> 100% em Mar/2026 e 100% em Mar/2027
         # (SEM tratamento especial de Interno)
 
         if deals_fechados:
@@ -354,11 +354,11 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     bars = ax.bar(x + width / 2, valores, width, label="Em Prospecção", color=COLOR_25)
 
     ax.set_title(
-        f"Previsão de Comissão por Finder ({finder_name})",
+        f"Previsão de Retribuição por Finder ({finder_name})",
         fontsize=12, color=COLOR_FATURA, fontweight="bold"
     )
 
-    ax.set_ylabel("Valor das Comissões (R$)", color=COLOR_TEXTO)
+    ax.set_ylabel("Valor da Retribuição (R$)", color=COLOR_TEXTO)
     ax.set_facecolor("#FFFFFF")
 
     # Aparência
