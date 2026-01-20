@@ -467,7 +467,7 @@ def generate_pdf(
     story.append(Paragraph("Dessa forma, ao consolidar os potenciais leads, obtém-se a visão geral apresentada na abaixo, que demonstra o comparativo dos somatórios dos valores médios com e sem o benefício TG, destacando a economia percebida e o valor médio de assinatura.", intro_text))
 
     # === Gráfico 1 Estimativas para Fechamento ===#
-    story.append(Paragraph("Valor Médio Estimado de Retribuição - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
+    story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
     story.append(Spacer(1, 6))
     story.append(Image(chart_path, width=400, height=220))
     story.append(Spacer(1, 10))

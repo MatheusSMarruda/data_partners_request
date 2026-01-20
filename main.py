@@ -26,7 +26,7 @@ def main():
     # Itera sobre a UNIÃO de finders de ambos os pipelines (PROSPECCAO + FECHADOS)
     # Assim garante que finders que existem APENAS em FECHADOS também geram PDFs
     all_finders = set(deals_by_finder.keys()) | set(deals_by_finder_fechados.keys())
-    
+
     for finder_name in sorted(all_finders):
         totals = deals_by_finder.get(finder_name, {
             "fatura_cheia": 0.0,
