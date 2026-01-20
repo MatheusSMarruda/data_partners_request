@@ -7,8 +7,64 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import re
 # CORREÇÃO DE IMPORTAÇÃO: Removendo o acento de 'distribuição' para evitar o ImportError
 from charts.chart_distribuicao_parceiro import gerar_distribuicao_parceiro
+
+
+def calcular_comissao_deal(finder_name, deal):
+    finder_lower = (finder_name or "").lower()
+    deal_assinatura = float(deal.get('assinatura', 0) or 0)
+    plano_label = str(deal.get('plano_assinado', '')).lower()
+    m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
+    perc = float(m.group(1).replace(',', '.')) if m else None
+    comissao = 0.0
+    if "gold" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.30
+        elif perc == 20.0:
+            comissao = deal_assinatura * 1.00
+        elif perc == 25.0:
+            comissao = deal_assinatura * 1.00
+        else:
+            comissao = deal_assinatura * 1.00
+    elif "plus" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.25
+        elif perc == 20.0:
+            comissao = deal_assinatura * 0.85
+        elif perc == 25.0:
+            comissao = deal_assinatura * 0.85
+        else:
+            comissao = deal_assinatura * 0.85
+    elif "indique" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.15
+        elif perc == 20.0:
+            comissao = deal_assinatura * 0.50
+        elif perc == 25.0:
+            comissao = deal_assinatura * 0.50
+        else:
+            comissao = deal_assinatura * 0.50
+    elif "parceiro exsat" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.16
+        elif perc == 20.0:
+            comissao = deal_assinatura * 0.51
+        elif perc == 25.0:
+            comissao = deal_assinatura * 0.51
+        else:
+            comissao = deal_assinatura * 0.51
+    elif "exsat" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.32
+        elif perc == 20.0:
+            comissao = deal_assinatura * 1.02
+        elif perc == 25.0:
+            comissao = deal_assinatura * 1.02
+        else:
+            comissao = deal_assinatura * 1.02
+    return comissao
 
 
 # --- Função Auxiliar de Formatação BR ---
@@ -60,7 +116,7 @@ def generate_pdf(
         assinatura_display = float(assinatura) if assinatura and float(assinatura) > 0 else sum(float(d.get('assinatura', 0) or 0) for d in (deals_fechados or []))
     except Exception:
         assinatura_display = assinatura
-    
+
     # Para passar ao gráfico, usa o valor original de assinatura (sem fallback para deals_fechados)
     assinatura_para_grafico = float(assinatura) if assinatura and float(assinatura) > 0 else 0
 
@@ -74,7 +130,7 @@ def generate_pdf(
 
     # === GRÁFICO DE DECOMPOSIÇÃO DA FATURA ===
     fig, ax = plt.subplots(figsize=(8, 4))
-    
+
     # AJUSTE: Inserindo '\n' (quebra de linha) para melhorar a visualização dos rótulos
     categorias = [
         "Valor Médio\nConsumo Sem a TG", 
@@ -228,10 +284,10 @@ def generate_pdf(
     if deals_fechados:
         story.append(Paragraph("Fechados:", styles["Heading2"]))
         if is_mother:
-            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
+            col_labels = ["Nome", "Data de Assinatura", "Subcontratado", "Plano Assinado", "Estimativa da 1° Retribuição", "Valor da Fatura (R$)"]
             col_widths = [76, 65, 84, 68, 99, 76]
         else:
-            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Estimativa de Retribuição", "Valor da Fatura (R$)"]
+            col_labels = ["Nome", "Data de Assinatura", "Plano Assinado", "Estimativa da 1° Retribuição", "Valor da Fatura (R$)"]
             col_widths = [129, 81, 73, 105, 81]
         col_labels = [Paragraph(label, header_style) for label in col_labels]
 
@@ -241,15 +297,14 @@ def generate_pdf(
             data_ass = Paragraph(d.get("data_assinatura", "-"), truncate_style)
             plano = Paragraph(d.get("plano_assinado", "-"), truncate_style)
             
-            # Formata assinatura como valor monetário
-            assinatura_value = d.get("assinatura", 0)
+            # Calcula comissão (estimativa de retribuição com descontos por plano)
+            comissao_value = calcular_comissao_deal(finder_name, d)
             try:
-                assinatura_value = float(assinatura_value) if assinatura_value else 0
-                assinatura_formatado_eua = f'{assinatura_value:,.2f}'
-                assinatura_formatado = f'R$ {assinatura_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
+                comissao_formatado_eua = f'{comissao_value:,.2f}'
+                comissao_formatado = f'R$ {comissao_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
             except:
-                assinatura_formatado = "-"
-            assinatura = Paragraph(assinatura_formatado, truncate_style)
+                comissao_formatado = "-"
+            comissao_p = Paragraph(comissao_formatado, truncate_style)
             
             # --- LÓGICA DE FORMATO BR (MANTIDA) ---
             valor_formatado_eua = f'{d["value"]:,.2f}'
@@ -261,19 +316,19 @@ def generate_pdf(
                 finder_value = d.get('finder', 'N/A')
                 subcontratado_txt = finder_value[:40] + ("..." if len(finder_value) > 40 else "")
                 subcontratado_p = Paragraph(subcontratado_txt, truncate_style)
-                cell_text.append([nome, data_ass, subcontratado_p, plano, assinatura, valor])
+                cell_text.append([nome, data_ass, subcontratado_p, plano, comissao_p, valor])
             else:
-                cell_text.append([nome, data_ass, plano, assinatura, valor])
+                cell_text.append([nome, data_ass, plano, comissao_p, valor])
 
         # Calcula o total
         total_fechados = sum(float(d["value"]) for d in deals_fechados)
         valor_total_formatado_eua = f'{total_fechados:,.2f}'
         valor_total_formatado_br = valor_total_formatado_eua.replace('.', '#').replace(',', '.').replace('#', ',')
         
-        # Calcula o total de assinatura
-        total_assinatura = sum(float(d.get("assinatura", 0) or 0) for d in deals_fechados)
-        total_assinatura_formatado_eua = f'{total_assinatura:,.2f}'
-        total_assinatura_formatado_br = f'R$ {total_assinatura_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
+        # Calcula o total de comissão
+        total_comissao = sum(calcular_comissao_deal(finder_name, d) for d in deals_fechados)
+        total_comissao_formatado_eua = f'{total_comissao:,.2f}'
+        total_comissao_formatado_br = f'R$ {total_comissao_formatado_eua.replace(".", "#").replace(",", ".").replace("#", ",")}'
         
         # Cria a linha de total
         if is_mother:
@@ -282,7 +337,7 @@ def generate_pdf(
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
-                Paragraph(f"<b>{total_assinatura_formatado_br}</b>", truncate_style),
+                Paragraph(f"<b>{total_comissao_formatado_br}</b>", truncate_style),
                 Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
             ]
         else:
@@ -290,7 +345,7 @@ def generate_pdf(
                 Paragraph("<b>TOTAL</b>", truncate_style),
                 Paragraph("", truncate_style),
                 Paragraph("", truncate_style),
-                Paragraph(f"<b>{total_assinatura_formatado_br}</b>", truncate_style),
+                Paragraph(f"<b>{total_comissao_formatado_br}</b>", truncate_style),
                 Paragraph(f"<b>R$ {valor_total_formatado_br}</b>", truncate_style)
             ]
         
@@ -412,7 +467,7 @@ def generate_pdf(
     story.append(Paragraph("Dessa forma, ao consolidar os potenciais leads, obtém-se a visão geral apresentada na abaixo, que demonstra o comparativo dos somatórios dos valores médios com e sem o benefício TG, destacando a economia percebida e o valor médio de assinatura.", intro_text))
 
     # === Gráfico 1 Estimativas para Fechamento ===#
-    story.append(Paragraph("Valor Médio Estimado de Comissão - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
+    story.append(Paragraph("Valor Médio Estimado de Retribuição - Simulação de Conversão de LEADS em Fechamentos", styles["Heading2"]))
     story.append(Spacer(1, 6))
     story.append(Image(chart_path, width=400, height=220))
     story.append(Spacer(1, 10))
@@ -425,7 +480,7 @@ def generate_pdf(
     story.append(Image(distrib_chart_path, width=450, height=200))
     story.append(Spacer(1, 8))
     info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),alignment=1, italic=True)
-    info_text = Paragraph("Esta é uma estimativa de comissão, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
+    info_text = Paragraph("Esta é uma estimativa de retribuição, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
 
     doc.build(story)
     print(f"PDF gerado com sucesso: {pdf_path}")
