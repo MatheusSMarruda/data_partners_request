@@ -15,5 +15,6 @@ CUSTOM_FIELD_KEYS = {
     'Data de Alteração de Funil' : 'bc6e85bfd61a7f514b65fbf8d1f3a7bacefc7f56',
     'Negócio Criado em' : 'add_time',
     'Plano Assinado' : 'fae8184ad9ee4befb23365ad84e47c76e03c6f71',
-    'Data de Assinatura' : '6aa88ec119316d071ba4d6f48fcdd921877b0baf'
+    'Data de Assinatura' : '6aa88ec119316d071ba4d6f48fcdd921877b0baf',
+    'Beneficio Estimado' : 'ef1347fdba636ead88f61566f8def53cddbe8cec'
 }

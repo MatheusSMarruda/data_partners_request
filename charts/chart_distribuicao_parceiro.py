@@ -57,14 +57,14 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     # =========================
     if "gold" in finder_lower:
         # Regras GOLD por plano (para FECHADOS):
-        # - Plano 15% -> 30% em Mar/2026
-        # - Plano 20% -> 100% em Mar/2026
-        # - Plano 25% -> 100% em Mar/2026 e 100% em Mar/2027
+        # - Plano 15% -> 30% em Abr/2026
+        # - Plano 20% -> 100% em Abr/2026
+        # - Plano 25% -> 100% em Abr/2026 e 100% em Abr/2027
 
         # Regras ESPECIAIS se o deal tiver INTERN0 no Finder:
-        # - Plano 15% -> 15% Mar/2026
-        # - Plano 85% -> 85% Mar/2026
-        # - Plano 25% -> 85% Mar/2026 e 85% Mar/2027
+        # - Plano 15% -> 15% Abr/2026
+        # - Plano 85% -> 85% Abr/2026
+        # - Plano 25% -> 85% Abr/2026 e 85% Abr/2027
 
         if deals_fechados:
             # Prospecção (mantém comportamento antigo do Gold) - APENAS se assinatura > 0
@@ -115,9 +115,9 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     # =========================
     elif "plus" in finder_lower:
         # Regras PLUS por plano (para FECHADOS):
-        # - Plano 15% -> 25% em Mar/2026
-        # - Plano 20% -> 85% em Mar/2026
-        # - Plano 25% -> 85% em Mar/2026 e 85% em Mar/2027
+        # - Plano 15% -> 25% em Abr/2026
+        # - Plano 20% -> 85% em Abr/2026
+        # - Plano 25% -> 85% em Abr/2026 e 85% em Abr/2027
         # (SEM tratamento especial de Interno)
 
         if deals_fechados:
@@ -165,9 +165,9 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
     # =========================
     elif "indique" in finder_lower:
         # Regras INDIQUE por plano (para FECHADOS):
-        # - Plano 15% -> 15% em Mar/2026
-        # - Plano 20% -> 50% em Mar/2026
-        # - Plano 25% -> 50% em Mar/2026 e 50% em Mar/2027
+        # - Plano 15% -> 15% em Abr/2026
+        # - Plano 20% -> 50% em Abr/2026
+        # - Plano 25% -> 50% em Abr/2026 e 50% em Abr/2027
         # (SEM tratamento especial de Interno)
 
         if deals_fechados:
@@ -342,6 +342,47 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
                 else:
                     valores[i] = assinatura * 0.02
                     base_vals[i] = assinatura_fechados * 0.02
+
+    # =========================
+    # 6) PROVEDOR
+    # =========================
+    elif "provedor" in finder_lower:
+        # Provedor: aplica percentuais iguais mês a mês de Abr/2026 até Abr/2027
+        if deals_fechados:
+            # Em Prospecção - APENAS se assinatura > 0
+            if assinatura and float(assinatura) > 0:
+                assinatura_val = float(assinatura)
+                if idx_mar_2026 is not None and idx_mar_2027 is not None:
+                    for i in range(idx_mar_2026, idx_mar_2027 + 1):
+                        valores[i] = assinatura_val * 0.035
+
+            for deal in deals_fechados:
+                if not isinstance(deal, dict):
+                    continue
+                deal_assinatura = float(deal.get('assinatura', 0) or 0)
+                plano_label = str(deal.get('plano_assinado', '')).lower()
+                m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
+                perc = float(m.group(1).replace(',', '.')) if m else None
+
+                percentual = 0.035  # default
+                if perc == 15.0:
+                    percentual = 0.025
+                elif perc == 20.0:
+                    percentual = 0.03
+                elif perc == 25.0:
+                    percentual = 0.035
+                elif perc == 30.0:
+                    percentual = 0.035
+
+                if idx_mar_2026 is not None and idx_mar_2027 is not None:
+                    for i in range(idx_mar_2026, idx_mar_2027 + 1):
+                        base_vals[i] += deal_assinatura * percentual
+
+        else:
+            if idx_mar_2026 is not None and idx_mar_2027 is not None:
+                for i in range(idx_mar_2026, idx_mar_2027 + 1):
+                    valores[i] = assinatura * 0.035
+                    base_vals[i] = assinatura_fechados * 0.035
 
     # =========================
     # === Gráfico (colunas clusterizadas por mês) ===

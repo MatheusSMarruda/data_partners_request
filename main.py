@@ -6,6 +6,7 @@ from reports.pdf_generator import generate_pdf
 from config import API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS
 from collections import defaultdict
 import os
+import datetime
 
 def main():
     deals_by_finder, deals_prospeccao = analyze_deals_in_pipeline(
@@ -19,8 +20,14 @@ def main():
         print("Nenhum negócio encontrado.")
         return
 
-    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files', exist_ok=True)
-    os.makedirs(r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files', exist_ok=True)
+    base_path = r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request'
+    current_month = datetime.datetime.now().month
+    current_year = datetime.datetime.now().year
+    version_folder = f"{current_month}.{current_year}"
+    child_path = os.path.join(base_path, 'child_files', version_folder)
+    mother_path = os.path.join(base_path, 'mother_files', version_folder)
+    os.makedirs(child_path, exist_ok=True)
+    os.makedirs(mother_path, exist_ok=True)
 
     # --- PDFs por Finder (child_files) ---
     # Itera sobre a UNIÃO de finders de ambos os pipelines (PROSPECCAO + FECHADOS)
@@ -52,7 +59,7 @@ def main():
             deals_fechados.get(finder_name, []),
             assinatura_fechados_val,
             finder_id,
-            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\child_files'
+            pasta_saida=child_path
         )
 
     # --- Agregação por Categoria (mother_files) ---
@@ -87,7 +94,7 @@ def main():
             categoria_fechados[categoria],
             assinatura_fechados_val,
             "N/A",
-            pasta_saida=r'C:\Users\Matheus\Documents\MeusProgramasPy\data_partners_request\mother_files'
+            pasta_saida=mother_path
         )
 
 if __name__ == "__main__":

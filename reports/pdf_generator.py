@@ -64,6 +64,31 @@ def calcular_comissao_deal(finder_name, deal):
             comissao = deal_assinatura * 1.02
         else:
             comissao = deal_assinatura * 1.02
+    elif "provedor" in finder_lower:
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.025
+        elif perc == 20.0:
+            comissao = deal_assinatura * 0.030
+        elif perc == 25.0:
+            comissao = deal_assinatura * 0.035
+        elif perc == 28.0:
+            comissao = deal_assinatura * 0.035
+        elif perc == 30.0:
+            comissao = deal_assinatura * 0.035
+        else:
+            # Para plano "Outro", buscar 'Beneficio Estimado'
+            if plano_label == "Outro":
+                beneficio_estimado = deal.get('Beneficio Estimado')
+                if beneficio_estimado:
+                    try:
+                        perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100
+                        comissao = deal_assinatura * perc_beneficio
+                    except ValueError:
+                        comissao = 0.0
+                else:
+                    comissao = 0.0
+            else:
+                comissao = deal_assinatura * 0.035  # default
     return comissao
 
 
