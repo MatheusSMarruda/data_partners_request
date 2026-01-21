@@ -19,6 +19,18 @@ def calcular_comissao_deal(finder_name, deal):
     m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
     perc = float(m.group(1).replace(',', '.')) if m else None
     comissao = 0.0
+    #Verificação por etapa das variaveis para debug
+    if "exatta gf" in finder_lower and "capital" in finder_lower:
+        print("DEBUG EXATTA:")
+        print("  finder_lower:", finder_lower)
+        print("  plano_label:", plano_label)
+        print("  perc:", perc)
+        print("  assinatura:", deal.get("assinatura"))
+        print("  Beneficio Estimado:", deal.get("Beneficio Estimado"))
+        print("  deal keys:", list(deal.keys()))
+        if "custom_fields" in deal:
+            print("  custom_fields:", deal["custom_fields"])
+    
     if "gold" in finder_lower:
         if perc == 15.0:
             comissao = deal_assinatura * 0.30
@@ -64,6 +76,63 @@ def calcular_comissao_deal(finder_name, deal):
             comissao = deal_assinatura * 1.02
         else:
             comissao = deal_assinatura * 1.02
+        #Teste código com verificação por etapa das variaveis.
+    elif ("exatta" in finder_lower and "gf" in finder_lower and "capital" in finder_lower):
+        if perc in (15.0, 20.0, 25.0):
+            desconto_percentual = 0.30 - (perc / 100)
+            comissao = deal_assinatura * desconto_percentual
+
+        elif plano_label == "outro":
+            beneficio_estimado = deal.get('Beneficio Estimado')
+            if beneficio_estimado:
+                try:
+                    perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100
+                    desconto_percentual = 0.30 - perc_beneficio
+                    comissao = deal_assinatura * desconto_percentual
+                except ValueError:
+                    comissao = 0.0
+            else:
+                comissao = 0.0
+        else:
+            comissao = 0.0
+    elif ("provedor" in finder_lower and "msm" in finder_lower):
+        if perc in (15.0, 20.0, 25.0, 28.0, 30.0, 18.0):
+            desconto_percentual = 0.25 - (perc / 100)
+            comissao = deal_assinatura * desconto_percentual
+
+        elif plano_label == "outro":
+            beneficio_estimado = deal.get('Beneficio Estimado')
+            if beneficio_estimado:
+                try:
+                    perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100
+                    desconto_percentual = 0.25 - perc_beneficio
+                    comissao = deal_assinatura * desconto_percentual
+                except ValueError:
+                    comissao = 0.0
+            else:
+                comissao = 0.0
+        else:
+            comissao = 0.0
+    elif ("provedor" in finder_lower and "linknet" in finder_lower):
+        if perc in (15.0, 20.0, 25.0):
+            desconto_percentual = 0.25 - (perc / 100)
+            comissao = deal_assinatura * desconto_percentual
+        elif perc is not None and perc >= 0.20:
+            desconto_percentual = 0.30 - (perc / 100)
+            comissao = deal_assinatura * desconto_percentual
+        elif plano_label == "outro":
+            beneficio_estimado = deal.get('Beneficio Estimado')
+            if beneficio_estimado:
+                try:
+                    perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100
+                    desconto_percentual = 0.30 - perc_beneficio
+                    comissao = deal_assinatura * desconto_percentual
+                except ValueError:
+                    comissao = 0.0
+            else:
+                comissao = 0.0
+        else:
+            comissao = 0.0
     elif "provedor" in finder_lower:
         if perc == 15.0:
             comissao = deal_assinatura * 0.025
@@ -90,7 +159,6 @@ def calcular_comissao_deal(finder_name, deal):
             else:
                 comissao = deal_assinatura * 0.035  # default
     return comissao
-
 
 # --- Função Auxiliar de Formatação BR ---
 def format_br(value):
@@ -501,11 +569,13 @@ def generate_pdf(
     story.append(Spacer(1, 16))
     story.append(Paragraph("Importante:Trata-se de uma estimativa, sujeita a variações conforme a taxa real de conversão, plano escolhido, consumo compensado e outros fatores operacionais.", intro_heading))
 
-    #=== Gráfico 2 de distribuição de parceiros ===#
-    story.append(Image(distrib_chart_path, width=450, height=200))
-    story.append(Spacer(1, 8))
-    info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),alignment=1, italic=True)
-    info_text = Paragraph("Esta é uma estimativa de retribuição, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
+    # Verifica se o tipo de parceria é "Provedor" ou "Exatta GF Capital" para decidir se exibe o gráfico 2
+    if tipo_parceria.lower() not in ["provedor", "exatta gf capital", "provedor msm", "provedor linknet"]:
+        #=== Gráfico 2 de distribuição de parceiros ===#
+        story.append(Image(distrib_chart_path, width=450, height=200))
+        story.append(Spacer(1, 8))
+        info_text_style = ParagraphStyle(name="InfoText", fontSize=9, textColor=colors.HexColor("#1B2124"),alignment=1, italic=True)
+        info_text = Paragraph("Esta é uma estimativa de retribuição, levando em consideração a média de consumo dos clientes em prospecção.", info_text_style)
 
     doc.build(story)
     print(f"PDF gerado com sucesso: {pdf_path}")

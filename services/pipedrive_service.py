@@ -143,6 +143,12 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                     )
                     data_assinatura_formatada = formatar_data(data_assinatura)
 
+                    # === BENEFICIO ESTIMADO ===
+                    beneficio_estimado = (
+                        deal.get(custom_field_keys["Beneficio Estimado"])
+                        or deal.get("custom_fields", {}).get(custom_field_keys["Beneficio Estimado"])
+                    )
+
                     # === Nome Finder formatado ===
                     finder_formatado = processed_finder
                     if finder_formatado and " - " in finder_formatado:
@@ -158,6 +164,7 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                     "data_entrada": data_entrada,
                     "plano_assinado": plano_assinado_label,
                     "data_assinatura": data_assinatura_formatada,
+                    "Beneficio Estimado": beneficio_estimado,
                     # >>> TÓPICO 2 AQUI <<<
                     "finder_raw": finder_raw,      # texto completo resolvido (com Interno)
                     "has_interno": has_interno,    # True/False por deal

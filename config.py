@@ -16,5 +16,6 @@ CUSTOM_FIELD_KEYS = {
     'Negócio Criado em' : 'add_time',
     'Plano Assinado' : 'fae8184ad9ee4befb23365ad84e47c76e03c6f71',
     'Data de Assinatura' : '6aa88ec119316d071ba4d6f48fcdd921877b0baf',
-    'Beneficio Estimado' : 'ef1347fdba636ead88f61566f8def53cddbe8cec'
+    'Beneficio Estimado' : 'ef1347fdba636ead88f61566f8def53cddbe8cec',
+    'Percentual Concedido': '5d6f2509ce01acf1f143dde2bd8b9bfbc22fd3c1'
 }
