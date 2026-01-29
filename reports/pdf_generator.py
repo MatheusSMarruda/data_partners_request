@@ -546,7 +546,7 @@ def generate_pdf(
     
     # Define percentual máximo de benefício e fidelidade máxima por parceiro
     if "GF CAPITAL" in parceiro.upper() and "ANDERSON" in parceiro.upper():
-        percentual_beneficio = "22%"
+        percentual_beneficio = "25%"
         fidelidade_maxima = "3 anos"
     elif "LINKNET" in parceiro.upper():
         percentual_beneficio = "18%"
