@@ -36,6 +36,8 @@ def obter_mapeamentos_campos(api_token):
 
     #Fazemos a extração do finder se obtiver "Interno" em tipos de finder
 def process_finder_field(finder_value, finder_mapping, return_meta=False):
+    print(finder_mapping)
+    
     """
     Processa o campo 'Finder (Origem da Fatura)'.
 
