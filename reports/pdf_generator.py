@@ -238,8 +238,12 @@ def generate_pdf(
     except Exception:
         assinatura_display = assinatura
 
-    # Para passar ao gráfico, usa o valor original de assinatura (sem fallback para deals_fechados)
-    assinatura_para_grafico = float(assinatura) if assinatura and float(assinatura) > 0 else 0
+    # Para passar ao gráfico, usa o valor original de assinatura (se existir). Caso não exista,
+    # tenta calcular a soma das assinaturas dos deals em prospecção como fallback (representa o cenário 25%).
+    try:
+        assinatura_para_grafico = float(assinatura) if assinatura and float(assinatura) > 0 else sum(float(d.get('assinatura', 0) or 0) for d in (deals_prospeccao or []))
+    except Exception:
+        assinatura_para_grafico = sum(float(d.get('assinatura', 0) or 0) for d in (deals_prospeccao or []))
 
     distrib_chart_path = gerar_distribuicao_parceiro(finder_name, assinatura_para_grafico, assinatura_fechados, deals_fechados)
 
@@ -605,8 +609,9 @@ def generate_pdf(
     story.append(Spacer(1, 16))
     story.append(Paragraph("Importante:Trata-se de uma estimativa, sujeita a variações conforme a taxa real de conversão, plano escolhido, consumo compensado e outros fatores operacionais.", intro_heading))
 
-    # Verifica se o tipo de parceria é "Provedor" ou "Exatta GF Capital" para decidir se exibe o gráfico 2
-    if tipo_parceria.lower() not in ["provedor", "exatta gf capital", "provedor msm", "provedor linknet"]:
+    # Verifica se o tipo de parceria é "Provedor", "Exatta GF Capital" ou "Interno" para decidir se exibe o gráfico 2.
+    # Também verifica se a função de geração do gráfico retornou um caminho válido (não None).
+    if distrib_chart_path and tipo_parceria.lower() not in ["provedor", "exatta gf capital", "provedor msm", "provedor linknet", "interno"]:
         #=== Gráfico 2 de distribuição de parceiros ===#
         story.append(Image(distrib_chart_path, width=450, height=200))
         story.append(Spacer(1, 8))

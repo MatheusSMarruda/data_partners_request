@@ -66,7 +66,7 @@ def main():
         finder_id = totals.get("finder_id", "N/A")
         if finder_id == "N/A":
             finder_id = deals_by_finder_fechados.get(finder_name, {}).get("finder_id", "N/A")
-        
+
         generate_pdf(
             finder_name,
             totals["fatura_cheia"],
