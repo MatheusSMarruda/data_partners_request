@@ -133,6 +133,34 @@ def calcular_comissao_deal(finder_name, deal):
                 comissao = 0.0
         else:
             comissao = 0.0
+
+    elif "interno" in finder_lower:
+        # Regras para Interno:
+        # Plano 15% -> 10% da Assinatura (1 retribuição)
+        # Plano 20% -> 20% da Assinatura (1 retribuição)
+        # Plano 25% -> 30% da Assinatura (1 retribuição)
+        # Planos >=28% (ex: 28%, 30%) -> tratamos como 30% (1 retribuição)
+        if perc == 15.0:
+            comissao = deal_assinatura * 0.10
+        elif perc == 20.0:
+            comissao = deal_assinatura * 0.20
+        elif perc == 25.0:
+            comissao = deal_assinatura * 0.30
+        elif perc is not None and perc >= 28.0:
+            comissao = deal_assinatura * 0.30
+        elif plano_label == "outro":
+            beneficio_estimado = deal.get('Beneficio Estimado')
+            if beneficio_estimado:
+                try:
+                    perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100
+                    comissao = deal_assinatura * perc_beneficio
+                except ValueError:
+                    comissao = 0.0
+            else:
+                comissao = 0.0
+        else:
+            comissao = 0.0
+
     elif "provedor" in finder_lower:
         if perc == 15.0:
             comissao = deal_assinatura * 0.025
@@ -304,9 +332,17 @@ def generate_pdf(
 
     # === INFORMAÇÕES DO PARCEIRO (Precisa ser antes do título) ===
     try:
-        partes = finder_name.split(" - ")
+        partes = [p.strip() for p in finder_name.split(" - ")]
+        # Tipo de parceria: mantém a segunda parte quando existe
         tipo_parceria = partes[1].strip() if len(partes) >= 3 else partes[-1].strip()
-        parceiro = partes[2].strip() if len(partes) >= 3 else finder_name
+        # Parceiro: quando há 4+ partes (ex: '01 - Interno - PaP - Diego...'),
+        # queremos o nome final (última parte). Caso contrário, mantém o comportamento anterior.
+        if len(partes) >= 4:
+            parceiro = partes[-1]
+        elif len(partes) == 3:
+            parceiro = partes[2]
+        else:
+            parceiro = finder_name
     except Exception:
         tipo_parceria, parceiro = "N/A", finder_name
 

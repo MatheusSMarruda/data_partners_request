@@ -145,7 +145,7 @@ Plano 25% = 85% do valor da assinatura em Abr/2026 e Abr/2027
 01 - Interno - Nayara Pimenta (ex-funcionário)
 01 - Interno - PaP - Antônio
 01 - Interno - PaP - Denilson Conceição Ribeiro
-01 - Interno - PaP - Diego Amaral Bispo
+## 01 - Interno - PaP - Diego Amaral Bispo
 01 - Interno - PaP - Diogo Beirão
 01 - Interno - PaP - Elivania Dias
 01 - Interno - PaP - Felipe Viana Sousa

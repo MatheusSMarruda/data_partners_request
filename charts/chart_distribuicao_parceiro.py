@@ -377,12 +377,54 @@ def gerar_distribuicao_parceiro(finder_name, assinatura, assinatura_fechados=0.0
                 if idx_mar_2026 is not None and idx_mar_2027 is not None:
                     for i in range(idx_mar_2026, idx_mar_2027 + 1):
                         base_vals[i] += deal_assinatura * percentual
+                        
+    # =========================
+    # 7) INTERNO
+    # =========================
+    elif "interno" in finder_lower:
+        # Regras Interno:
+        # Plano 15% -> 10% da Assinatura (1 retribuição)
+        # Plano 20% -> 20% da Assinatura (1 retribuição)
+        # Plano 25% -> 30% da Assinatura (1 retribuição)
+        if deals_fechados:
+                for deal in deals_fechados:
+                    if not isinstance(deal, dict):
+                        continue
+                    deal_assinatura = float(deal.get('assinatura', 0) or 0)
+                    plano_label = str(deal.get('plano_assinado', '')).lower()
+                    m = re.search(r"(\d+(?:[\.,]\d+)?)", plano_label)
+                    perc = float(m.group(1).replace(',', '.')) if m else None
 
+                    # Calcula a comissão (retribuição) por negócio usando as regras internas (mesmo resultado de calcular_comissao_deal para 'interno')
+                    comissao = 0.0
+                    if perc == 15.0:
+                        comissao = deal_assinatura * 0.10
+                    elif perc == 20.0:
+                        comissao = deal_assinatura * 0.20
+                    elif perc == 25.0:
+                        comissao = deal_assinatura * 0.30
+                    elif perc is not None and perc >= 28.0:
+                        comissao = deal_assinatura * 0.30
+                    elif plano_label == "outro":
+                        beneficio_estimado = deal.get('Beneficio Estimado')
+                        if beneficio_estimado:
+                            try:
+                                perc_beneficio = float(str(beneficio_estimado).replace(',', '.')) / 100.0
+                                comissao = deal_assinatura * perc_beneficio
+                            except ValueError:
+                                comissao = 0.0
+                        else:
+                            comissao = 0.0
+
+                    # TODOS os tipos de plano -> apenas uma retribuição em Abr/2026
+                    if idx_mar_2026 is not None and comissao > 0:
+                        base_vals[idx_mar_2026] += comissao
         else:
-            if idx_mar_2026 is not None and idx_mar_2027 is not None:
-                for i in range(idx_mar_2026, idx_mar_2027 + 1):
-                    valores[i] = assinatura * 0.035
-                    base_vals[i] = assinatura_fechados * 0.035
+                if idx_mar_2026 is not None and idx_mar_2027 is not None:
+                    for i in range(idx_mar_2026, idx_mar_2027 + 1):
+                        valores[i] = assinatura * 0.035
+                        base_vals[i] = assinatura_fechados * 0.035
+
 
     # =========================
     # === Gráfico (colunas clusterizadas por mês) ===

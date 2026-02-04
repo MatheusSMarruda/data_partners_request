@@ -29,7 +29,7 @@ def _parse_plano_label_to_decimal(label):
     return 0.25
 
 
-def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_keys, calcular_totais=True):
+def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_keys, calcular_totais=True, preserve_interno=False):
     base_url = "https://tempoenergia.pipedrive.com/v1"
     deals_by_finder = {}
     deals_details = {}
@@ -92,7 +92,8 @@ def analyze_deals_in_pipeline(api_token, pipeline_id, filter_id, custom_field_ke
                     processed_finder, has_interno, finder_raw, finder_id = process_finder_field(
                         finder, 
                         finder_mapping, 
-                        return_meta=True
+                        return_meta=True,
+                        preserve_interno=preserve_interno
                     )
                     if not processed_finder:
                         continue

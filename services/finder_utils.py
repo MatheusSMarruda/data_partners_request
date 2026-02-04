@@ -35,14 +35,13 @@ def obter_mapeamentos_campos(api_token):
     return mapeamentos
 
     #Fazemos a extração do finder se obtiver "Interno" em tipos de finder
-def process_finder_field(finder_value, finder_mapping, return_meta=False):
-    print(finder_mapping)
-    
+def process_finder_field(finder_value, finder_mapping, return_meta=False, preserve_interno=False):
     """
     Processa o campo 'Finder (Origem da Fatura)'.
 
-    - Remove partes com 'interno' para formar o finder_clean.
-    - Detecta se havia 'interno' antes de remover (has_interno).
+    - Detecta se havia 'interno' nas partes resolvidas (has_interno).
+    - Por padrão remove partes com 'interno' para formar o finder_clean;
+      se preserve_interno=True mantém a parte com 'Interno'.
     - Rastreia o ID original antes da resolução do mapeamento (finder_id).
 
     Se return_meta=True retorna:
@@ -71,8 +70,13 @@ def process_finder_field(finder_value, finder_mapping, return_meta=False):
     # flag de interno olhando as partes resolvidas
     has_interno = any("interno" in str(part).lower() for part in resolved_parts)
 
-    # remove internos do texto final
-    filtered_parts = [part for part in resolved_parts if "interno" not in str(part).lower()]
+    # Se preserve_interno for True, mantém as partes originais (inclusive 'Interno')
+    if preserve_interno:
+        filtered_parts = resolved_parts
+    else:
+        # remove internos do texto final
+        filtered_parts = [part for part in resolved_parts if "interno" not in str(part).lower()]
+
     finder_clean = ", ".join(filtered_parts) if filtered_parts else None
 
     if return_meta:

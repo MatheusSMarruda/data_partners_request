@@ -9,20 +9,22 @@ import os
 import datetime
 
 def main():
+    # Input para escolher finder específico (se quiser relatório do tipo 'Interno' digite 'Interno')
+    finder_especifico = input("Digite o nome do finder para gerar relatório (ou pressione Enter para todos): ").strip()
+    preserve_interno = False
+    if finder_especifico and "interno" in finder_especifico.lower():
+        preserve_interno = True
+
     deals_by_finder, deals_prospeccao = analyze_deals_in_pipeline(
-        API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, CUSTOM_FIELD_KEYS, calcular_totais=True
+        API_TOKEN, PIPELINE_PROSPECCAO, FILTER_PROSPECCAO, CUSTOM_FIELD_KEYS, calcular_totais=True, preserve_interno=preserve_interno
     )
     deals_by_finder_fechados, deals_fechados = analyze_deals_in_pipeline(
-        API_TOKEN, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS, calcular_totais=True
+        API_TOKEN, PIPELINE_FECHADOS, FILTER_FECHADOS, CUSTOM_FIELD_KEYS, calcular_totais=True, preserve_interno=preserve_interno
     )
 
     if not deals_by_finder:
         print("Nenhum negócio encontrado.")
         return
-
-    # Input para escolher finder específico
-    finder_especifico = input("Digite o nome do finder para gerar relatório (ou pressione Enter para todos): ").strip()
-
     base_path = r'C:\Users\Matheus\Tempo Energia\04-Comercial - 04 - Relatórios de estimativa de retribuição'
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
@@ -41,7 +43,12 @@ def main():
         if finder_especifico in all_finders:
             all_finders = {finder_especifico}
         else:
-            print(f"Finder '{finder_especifico}' não encontrado. Gerando para todos.")
+            # Tenta buscar por substring (caso de 'Interno' para pegar todos os finders internos)
+            matches = {f for f in all_finders if finder_especifico.lower() in str(f).lower()}
+            if matches:
+                all_finders = matches
+            else:
+                print(f"Finder '{finder_especifico}' não encontrado. Gerando para todos.")
     else:
         all_finders = sorted(all_finders)
 
